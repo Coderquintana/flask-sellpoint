@@ -1,0 +1,359 @@
+{% extends "base.html" %} 
+{% block title %}Definición de Proveedores{% endblock %} 
+{% block content %}
+<head>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" />
+  <link rel="stylesheet" href="/static/css/users.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="container">
+              <div class="text-center">
+                <h5 class="card-title text-uppercase">Definición de Proveedores</h5>
+              </div>
+              <div class="text-right">
+                <button class="btn btn-success" type="button" data-toggle="modal" data-target="#proveedor-form-modal">Agregar Proveedor</button>
+              </div>
+            </div>
+          </div>
+          <br/>
+          <div class="table-responsive">
+            <table id="proveedores" class="table no-wrap proveedores-table mb-0">
+              <thead>
+                <tr>
+                  <th scope="col" class="border-0 text-uppercase font-medium pl-4">#</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Nro. Documento</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Nombre</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Dirección</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Correo</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for pr in list_proveedores %}
+                  <tr>
+                    <td>{{ pr.id }}</td>
+                    <td>{{ pr.ci_ruc }}</td>
+                    <td>{{ pr.name }}</td>
+                    <td>{{ pr.address }}</td>
+                    <td>{{ pr.email }}</td>
+                    <td>
+                      <a type="button" id="btnVisualizar" class="btn btn-outline-success btn-circle btn-lg btn-circle ml-2" data-bs-toggle="tooltip" data-bs-html="true" title="Visualizar" data-toggle="modal" data-target="#view-proveedor-form-modal{{ pr.id }}"><i class="fa fa-eye"></i> </a>
+                        <button type="button" class="btn btn-outline-success btn-circle btn-lg btn-circle ml-2"  data-bs-toggle="tooltip" data-bs-html="true" title="Modificar" data-toggle="modal" data-target="#edit-proveedor-form-modal{{ pr.id }}"><i class="fa fa-edit"></i> </button>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <br/>
+          </div>
+        </div>
+      </div>
+            <!-- Proveedor Form Modal -->
+    <div class="modal fade" role="dialog" tabindex="-1" id="proveedor-form-modal">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Creación de Proveedor</h5>
+            <button type="button" class="close" data-dismiss="modal">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="py-1">
+              <form class="form" action="{{ url_for('views.agregarProveedor') }}" method="post" autocomplete="off">
+                <div class="row">
+                  <div class="col">
+                    <div class="row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Tipo de documento</label>
+                          <select class="form-control category-select" id="tipo_documento" name="tipo_documento">
+                            {% for tipo_doc in list_tipo_documento %}
+                              <option value="{{tipo_doc.id}}" >{{tipo_doc.desc_tipo}}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Nro. de Documento</label>
+                          <input class="form-control" type="text" name="ci_ruc" value="" placeholder="80054250-0" required >
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Nombres y Apellidos</label>
+                          <input class="form-control" type="text" name="name" value="" placeholder="Distribuidora S.A." required >
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Dirección</label>
+                          <input class="form-control" type="text" name="address" value="" placeholder="Av. Colón E/ Gral. Díaz">
+                        </div>
+                      </div>
+                    </div>                      
+                    <div class="row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Teléfono</label>
+                          <input class="form-control" type="text" name="phone" value="" placeholder="021 123 123">
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Correo Eléctronico</label>
+                          <input class="form-control" type="text" name="email" value="" placeholder="ejemplo@gmail.com">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Ciudad</label>
+                          <input class="form-control" type="text" name="city" value="" placeholder="Asunción">
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Barrio</label>
+                          <input class="form-control" type="text" name="neighborhood" value="" placeholder="Villa Morra">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <br/>
+                <div class="row">
+                  <div class="col d-flex justify-content-end">
+                    <button class="btn btn-primary" type="submit">Guardar</button>
+                    <button type="button" class="btn btn-danger cancel" data-dismiss="modal">Cerrar</button>  
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+            <!-- Modificar Proveedor Form Modal -->
+    {% for pr in list_proveedores %}
+      <div class="modal fade" role="dialog" tabindex="-1" id="edit-proveedor-form-modal{{pr.id}}">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Modificar Proveedor {{ pr.name }}</h5>
+              <button type="button" class="close" data-dismiss="modal">
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="py-1">
+                <form class="form" id="editarProveedor" novalidate="" action="{{ url_for('views.editarProveedor') }}" method="post" autocomplete="off">
+                  <div class="row">
+                    <div class="col">
+
+                      <div class="col" hidden>
+                        <div class="form-group">
+                          <input class="form-control" type="text" name="id" value="{{ pr.id }}" readonly>
+                        </div>
+                      </div>
+
+                      <div class="row">
+                        <div class="col">
+                          <div class="form-group">
+                            <label>Tipo de Documento</label>
+                            <select class="form-control category-select" id="tipo_documento" name="tipo_documento">
+                              {% for tipo_doc in list_tipo_documento %}
+                                <option value="{{tipo_doc.id}}"{% if pr.tipo_documento == tipo_doc.id %} selected {% endif %}>{{tipo_doc.desc_tipo}}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                        </div>
+                        <div class="col">
+                          <div class="form-group">
+                            <label>Nro. Documento</label>
+                            <input class="form-control" type="text" name="ci_ruc" value="{{ pr.ci_ruc }}">
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col">
+                          <div class="form-group">
+                            <label>Nombres y Apellidos</label>
+                            <input class="form-control" type="text" name="name" value="{{ pr.name }}">
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col mb-3">
+                          <div class="form-group">
+                            <label>Dirección</label>
+                            <input class="form-control" type="text" name="address" value="{{ pr.address }}"></textarea>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col">
+                          <div class="form-group">
+                            <label>Teléfono</label>
+                            <input class="form-control" type="text" name="email" value="{{ pr.email }}">
+                          </div>
+                        </div>
+                        <div class="col">
+                          <div class="form-group">
+                            <label>Correo ELectrónico</label>
+                            <input class="form-control" type="text" name="phone" value="{{ pr.phone }}">
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col">
+                          <div class="form-group">
+                            <label>Ciudad</label>
+                            <input class="form-control" type="text" name="city" value="{{ pr.city }}">
+                          </div>
+                        </div>
+                        <div class="col">
+                          <div class="form-group">
+                            <label>Barrio</label>
+                            <input class="form-control" type="text" name="neighborhood" value="{{ pr.neighborhood }}">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <br/>
+                  <div class="row">
+                    <div class="col d-flex justify-content-end">
+                      <button class="btn btn-primary" type="submit">Guardar Cambios</button>
+                      <button type="button" class="btn btn-danger cancel" data-dismiss="modal">Cerrar</button>  
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+
+            <!-- Visualizar Proveedor Form Modal -->
+    {% for pr in list_proveedores %}
+      <div class="modal fade" role="dialog" tabindex="-1" id="view-proveedor-form-modal{{pr.id}}">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Proveedor Visualizado {{ pr.name }}</h5>
+              <button type="button" class="close" data-dismiss="modal">
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="py-1">
+                <form class="form" id="editarProveedor" novalidate="" action="{{ url_for('views.editarProveedor') }}" method="post" autocomplete="off">
+                  <fieldset disabled="disabled">
+                    <div class="row">
+                      <div class="col">
+      
+                        <div class="col" hidden>
+                          <div class="form-group">
+                            <input class="form-control" type="text" name="id" value="{{ pr.id }}" readonly>
+                          </div>
+                        </div>
+      
+                        <div class="row">
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Tipo de Documento</label>
+                              <select class="form-control category-select" id="tipo_documento" name="tipo_documento">
+                                {% for tipo_doc in list_tipo_documento %}
+                                  <option value="{{tipo_doc.id}}"{% if pr.tipo_documento == tipo_doc.id %} selected {% endif %}>{{tipo_doc.desc_tipo}}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                          </div>
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Nro. Documento</label>
+                              <input class="form-control" type="text" name="ci_ruc" value="{{ pr.ci_ruc }}">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Nombres y Apellidos</label>
+                              <input class="form-control" type="text" name="name" value="{{ pr.name }}">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col mb-3">
+                            <div class="form-group">
+                              <label>Dirección</label>
+                              <input class="form-control" type="text" name="address" value="{{ pr.address }}"></textarea>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Teléfono</label>
+                              <input class="form-control" type="text" name="email" value="{{ pr.email }}">
+                            </div>
+                          </div>
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Correo ELectrónico</label>
+                              <input class="form-control" type="text" name="phone" value="{{ pr.phone }}">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Ciudad</label>
+                              <input class="form-control" type="text" name="city" value="{{ pr.city }}">
+                            </div>
+                          </div>
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Barrio</label>
+                              <input class="form-control" type="text" name="neighborhood" value="{{ pr.neighborhood }}">
+                            </div>
+                          </div>
+                       </div>
+                     </div>
+                    </div>
+                    <br/>
+                </fieldset>
+                <div class="row">
+                  <div class="col d-flex justify-content-end">
+                    <button class="btn btn-primary" type="submit">Cerrar</button>
+                  </div>
+                </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js" ></script>
+  <script src="//cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js" ></script>
+  <script src="{{url_for('static', filename='javascript/users.js')}}"></script>
+</body>
+
+{% endblock %}

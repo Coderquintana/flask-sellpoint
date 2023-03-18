@@ -1,0 +1,123 @@
+{% extends "base.html" %} 
+{% block title %}Reporte de Cobros{% endblock %} 
+{% block content %}
+<head>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/users.css" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+  <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+
+</head>
+<body>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="container">
+            <div class="text-center">
+              <h5 class="card-title text-uppercase">Cobros a Clientes</h5>
+              <input class="form-control" style="width:50%;" type="text" name="daterange" value="01/01/2022 - 01/31/2022" />
+            </div>
+          </div>
+        </div>
+        <br>
+        <div class="table-responsive">
+          <table id="facturas" class="table no-wrap user-table mb-0">
+            <thead>
+              <tr>
+                <th scope="col" class="border-0 text-uppercase font-medium">Nro Factura</th>
+                <th scope="col" class="border-0 text-uppercase font-medium">Cliente</th>
+                <th scope="col" class="border-0 text-uppercase font-medium">Condicion Pago</th>
+                <th scope="col" class="border-0 text-uppercase font-medium">Anulado</th>
+                <th scope="col" class="border-0 text-uppercase font-medium">Fecha</th>
+                <th scope="col" class="border-0 text-uppercase font-medium">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for factura in list_facturas %}
+              <tr>
+                <td>{{ factura.nro_factura }}</td>
+                <td>{{ factura.name }}</td>
+                <td>{{ factura.condicion_pago }}</td>
+                {% if factura.anulado %}
+                  <td>Anulado</td>
+                {% else %}
+                  <td>Vigente</td>
+                {% endif %}
+                <td>{{ factura.fecha.strftime('%Y-%m-%d') }}</td>
+                <td>
+                  <button type="button"   class="btn btn-outline-success btn-circle btn-lg btn-circle " data-bs-toggle="tooltip" data-bs-html="true" title="Seleccionar"><i class="bi bi-check2-square"></i></button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <br/>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(document).ready(function () {
+      $('#facturas').DataTable({
+        initComplete: function () {
+          this.api()
+            .columns([1,2,3,4])
+            .every(function () {
+                var column = this;
+                console.log(this.columns([4]))
+                var select = $('<select class="myselect"><option value=""></option></select>')
+                .appendTo( $(column.header()) )
+                .on('change', function () {
+                  var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                  column.search(val ? '^' + val + '$' : '', true, false).draw();
+                });
+
+                column
+                .data()
+                .unique()
+                .sort()
+                .each(function (d, j) {
+                  select.append('<option value="' + d + '">' + d + '</option>');
+                });
+            });
+          },
+        language: {
+        "decimal": "",
+        "emptyTable": "No hay información",
+        "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+        "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+        "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+        "infoPostFix": "",
+        "thousands": ",",
+        "lengthMenu": "Mostrar _MENU_ Entradas",
+        "loadingRecords": "Cargando...",
+        "processing": "Procesando...",
+        "search": "Buscar:",
+        "zeroRecords": "Sin resultados encontrados",
+        "paginate": {
+          "first": "primero",
+          "last": "Ultimo",
+          "next": "Siguiente",
+          "previous": "Anterior" }
+        }
+      });
+    });
+    $(document).ready(function() {
+      $('.myselect').select2({
+        placeholder: "Filtrar",
+        allowClear: true
+      });
+    });
+  </script>
+  <script type="text/javascript">
+    $(function() {
+      $('input[name="daterange"]').daterangepicker();
+    });
+  </script>
+</body>
+{% endblock %}

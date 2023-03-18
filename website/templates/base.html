@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/static/images/logo.ico">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">    
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.2/examples/offcanvas-navbar/">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" >
+    <link href='https://fonts.googleapis.com/css?family=Oswald:300' rel='stylesheet' type='text/css'>
+
+    <!-- Formato de miles -->
+    <script src="https://cdn.jsdelivr.net/npm/autonumeric@4.1.0/dist/autoNumeric.min.js"></script>
+
+    <!--Jquery cdn-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+
+    <!-- CSS only -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" >
+    
+    <link rel="stylesheet" href="/static/css/base.css">
+    <title>{% block title %}Home{% endblock %}</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-md mb-4 justify-content-center navbar-collapse align-items-center font-weight-bold">
+      <div class="container-fluid">
+        <a class="navbar-brand1" href="/">
+          <img class="navbar-brand" src="static\images\logo1.png" alt="" width="62" height="48">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+          <ul class="navbar-nav me-auto mb-2 mb-md-0">
+            {% if user.is_authenticated %}
+              {% for row in access %}
+                {% if row[0] == 'Venta' %} 
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Venta</a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="/registrar_venta">Registrar Venta</a></li>
+                    <li><a class="dropdown-item" href="/pedidos">Pedidos</a></li>
+                    <li><a class="dropdown-item" href="/caja">Caja</a></li>
+                    <li class="dropdown-submenu">
+                      <a class="dropdown-item dropdown-toggle" href="#">Reporte</a>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/reporte_ventas">Factura</a></li>
+                        <li><a class="dropdown-item" href="/reporte_caja">Arqueo de Caja</a></li>
+                        <li><a class="dropdown-item" href="/reporte_pedido">Pedido</a></li>
+                      </ul>
+                    </li>
+                  </ul>
+                  
+                </li>
+                {% endif %}
+              {% endfor %}
+              {% for row in access %}
+                {% if row[0] == 'Compra' %}
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Compra</a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="/compras">Registrar Compra</a></li>
+                    <li><a class="dropdown-item" href="/ordencompra">Orden de compra</a></li>
+                    <li class="dropdown-submenu">
+                      <a class="dropdown-item dropdown-toggle" href="#">Reportes</a>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/reporte_compras">Facturaciones</a></li>
+                        <li><a class="dropdown-item" href="/reporteprodcompras">Productos Mas Comprados</a></li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+                {% endif %}
+              {% endfor %}
+              {% for row in access %}
+                {% if row[0] == 'Cuenta Corriente' %}
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false" id="navbarDropdownMenuLink" role="button">Cuenta Corriente</a>
+                  <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <li class="dropdown-submenu">
+                      <a class="dropdown-item dropdown-toggle" href="#">Clientes</a>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/clientes">Definicion Clientes</a></li>
+                        <li><a class="dropdown-item" href="/cobros">Cobros</a></li>
+                        <li><a class="dropdown-item" href="/reporte_cobro">Reportes</a></li>
+                      </ul>
+                    </li>
+                    <li class="dropdown-submenu">
+                      <a class="dropdown-item dropdown-toggle" href="#">Proveedores</a>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/proveedores">Definicion Proveedores</a></li>
+                        <li><a class="dropdown-item" href="/pagos">Pagos</a></li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+                {% endif %}
+              {% endfor %}
+              {% for row in access %}
+                {% if row[0] == 'Stock' %}
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Stock</a>
+                  <ul class="dropdown-menu">
+                    <li class="dropdown-submenu">
+                      <a class="dropdown-item dropdown-toggle" href="#">Productos</a>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/productos">Definicion de Productos</a></li>
+                        <li><a class="dropdown-item" href="/familia">Familia</a></li>
+                        <li><a class="dropdown-item" href="/seccion">Sección</a></li>
+                        <li><a class="dropdown-item" href="/promocion">Promocion</a></li>
+                        <li><a class="dropdown-item" href="/unidad_medida">Unidad de Medida</a></li>
+                      </ul>
+                    </li>
+                    <li><a class="dropdown-item" href="/entrada">Entrada</a></li>
+                    <li><a class="dropdown-item" href="/salida">Salida</a></li>
+                    <li><a class="dropdown-item" href="/inventario">Inventario</a></li>
+                    <li class="dropdown-submenu">
+                      <a class="dropdown-item dropdown-toggle" href="#">Reportes</a>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/reporte_valorizado">Reporte Valorizado</a></li>
+                        <li><a class="dropdown-item" href="/listar_productos">Listar Productos</a></li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+                {% endif %}
+              {% endfor %}
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-item nav-link" id="login" href="/login">Login</a>
+            </li>
+            <!-- <a class="nav-item nav-link" id="signUp" href="/sign-up">Sign Up</a> -->
+            {% endif %}
+          </ul>
+          {% if user.is_authenticated %}
+            <form class="d-flex">
+              <div class="dropdown">
+                <button class="btn btn2 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-gear"></i></button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  {% if user.rol_id == 1 %}
+                  <li><a class="dropdown-item" href="/users">Usuarios</a></li>
+                  <li><a class="dropdown-item" href="/roles_permisos">Roles y Permisos</a></li>
+                  {% endif %}
+                  <div class="dropdown-divider"></div>
+                  <li><a class="dropdown-item" data-toggle="modal" data-target="#modal-empresa">Empresa</a></li>
+                  <div class="dropdown-divider"></div>
+                  <li><a class="dropdown-item" href="/logout">Cerrar Sesión</a></li>
+                </ul>
+              </div>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+    
+    <!-- Modal Empresa -->
+    <div class="modal fade" id="modal-empresa" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Empresa</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+          <div class="modal-body">
+            <div class="container-fluid">
+              <form class="form" action="{{ url_for('auth.datos') }}" method="post" autocomplete="off">
+                <div class="row">
+                  <div class="col">
+                    <div class="row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Telefono</label>
+                          <input class="form-control" type="text" name="phone" placeholder="021 999 999" value="{{ empresa.telefono }}" >
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Eslogan</label>
+                          <input class="form-control" type="text" name="eslogan" placeholder="Gracias por su compra" value="{{ empresa.eslogan }}">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Email</label>
+                          <input class="form-control" type="text" name="email" placeholder="pperez@gmail.com" value="{{ empresa.email }}">
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Ciudad</label>
+                          <input class="form-control" type="text" name="city" placeholder="Asunción" value="{{ empresa.ciudad }}">
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Barrio</label>
+                          <input class="form-control" type="text" name="barrio" placeholder="Villa Morra" value="{{ empresa.barrio }}">
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Timbrado</label>
+                          <input class="form-control" type="text" name="timbrado" placeholder="2342425" value="{{ empresa.timbrado }}">
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Nro. Factura</label>
+                          <input class="form-control" type="number" name="nro-factura" value="{{ empresa.nro_factura }}">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Factura Inicio</label>
+                          <input class="form-control" type="text" name="factura-inicio" placeholder="2342425" value="{{ empresa.factura_inicio }}">
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Factura Fin</label>
+                          <input class="form-control" type="number" name="factura-fin" value="{{ empresa.factura_fin }}">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col mb-3">
+                        <div class="form-group">
+                          <label>Dirección</label>
+                          <input class="form-control" type="text" name="address" value="{{ empresa.direccion }}">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <br />
+                <div class="container">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                  <button type="submit" class="btn btn-primary">Confirmar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %} {% for category, message in messages %} {% if category ==
+    'error' %}
+    <div class="alert alert-danger alter-dismissable fade show" role="alert">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    {% else %}
+    <div class="alert alert-success alter-dismissable fade show" role="alert">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    {% endif %} {% endfor %} {% endif %} {% endwith %}
+
+    <div class="container">{% block content %} {% endblock %}</div>
+
+    <div class="container">
+      <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+        <div class="col-md-4 d-flex align-items-center">
+          <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
+            <svg class="bi" width="30" height="24"><use xlink:href="#bootstrap"/></svg>
+          </a>
+          <span class="mb-3 mb-md-0 text-muted">&copy; 2022 Proyecto 2 - SYSPDV</span>
+        </div>
+    
+        <ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
+          <li class="ms-3"><a class="text-muted" href="#"><i class="bi bi-facebook"></i></a></li>
+          <li class="ms-3"><a class="text-muted" href="#"><i class="bi bi-twitter"></i></a></li>
+          <li class="ms-3"><a class="text-muted" href="#"><i class="bi bi-instagram"></i></a></li>
+        </ul>
+      </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" ></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" ></script>
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" ></script>
+    <!-- Datatables scripts -->
+    <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js" ></script>
+    <script src="//cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js" ></script>
+
+
+    <script src="{{url_for('static', filename='javascript/base.js')}}"></script>
+  </body>
+</html>

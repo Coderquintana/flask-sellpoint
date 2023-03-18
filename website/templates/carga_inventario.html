@@ -1,0 +1,140 @@
+{% extends "base.html" %} 
+{% block title %}Carga de Inventario{% endblock %} 
+{% block content %}
+<head>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" />
+  <link rel="stylesheet" href="/static/css/familia.css" />
+</head>
+<style>
+  .dataTables_paginate{
+        display:none;
+      }
+      .dataTables_info{
+        display:none;
+      }
+      .dataTables_filter{
+        display:none;
+      }
+      .dataTables_length{
+        display:none;
+      }
+</style>
+<body>
+  <div class="container">
+    <div class="row centrar">
+      <div class="col-md-10">
+        <form class="form" id="form" action="{{ url_for('views.agregarCarga') }}" method="post" autocomplete="off">
+          <div class="card">
+            <div class="card-body">
+              <div class="container">
+                <div class="text-center">
+                  <h5 class="card-title text-uppercase">Carga de Inventario</h5>
+                </div>
+              </div>
+            </div>
+            <br/>
+            <div class="table-responsive">
+                <table id="inv" class="table no-wrap inv-table mb-0">
+                  <thead>
+                    <tr>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Código</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Descripción</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Sección</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Estante</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Cantidad Actual</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Cantidad a Cargar</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for productos in list_productos %}
+                    <tr>
+                        <td>{{ productos.codigo }}</td>
+                        <td>{{ productos.descripcion }}</td>
+                        <td>{{ productos.seccion }}</td>
+                        <td align="center">{{ productos.estante }}</td>
+                        <td align="center">{{ productos.cantidad}}</td>
+                        <td><input class="form-control" type="float" name="prod-{{productos.codigo}}" value=0 placeholder="0"></td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                <br/>
+                <div class="row">
+                  <div class="col d-flex justify-content-end">
+                    <button class="btn btn-primary" type="submit">Guardar</button>
+                    <button onclick="location.href='inventario'" type="button" class="btn btn-danger cancel" data-dismiss="modal">Cerrar</button>
+                  </div>
+                </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      $('#inv').DataTable({
+        initComplete: function () {
+          this.api()
+            .columns([2,3])
+            .every(function () {
+                var column = this;
+                console.log(this.columns([4]))
+                var select = $('<select class="myselect"><option value=""></option></select>')
+                .appendTo( $(column.header()) )
+                .on('change', function () {
+                  var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                  column.search(val ? '^' + val + '$' : '', true, false).draw();
+                });
+
+                column
+                .data()
+                .unique()
+                .sort()
+                .each(function (d, j) {
+                  select.append('<option value="' + d + '">' + d + '</option>');
+                });
+            });
+          },
+        language: {
+        "decimal": "",
+        "emptyTable": "No hay información",
+        "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+        "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+        "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+        "infoPostFix": "",
+        "thousands": ",",
+        "lengthMenu": "Mostrar _MENU_ Entradas",
+        "loadingRecords": "Cargando...",
+        "processing": "Procesando...",
+        "search": "Buscar:",
+        "zeroRecords": "Sin resultados encontrados",
+        "paginate": {
+          "first": "primero",
+          "last": "Ultimo",
+          "next": "Siguiente",
+          "previous": "Anterior" }
+        }
+      });
+    });
+    $(document).ready(function() {
+      $('.myselect').select2({
+        placeholder: "Filtrar",
+        allowClear: true
+      });
+    });
+  </script>
+  <script type="text/javascript">
+    $(function() {
+      $('input[name="daterange"]').daterangepicker();
+    });
+    
+  </script>
+
+  <script src="//code.jquery.com/jquery-3.5.1.js" ></script>
+  <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js" ></script>
+  <script src="//cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js" ></script>
+</body>
+
+{% endblock %}

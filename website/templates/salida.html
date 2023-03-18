@@ -1,0 +1,122 @@
+{% extends "base.html" %} 
+{% block title %}Salida de mercadería{% endblock %} 
+{% block content %}
+<head>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" />
+  <link rel="stylesheet" href="/static/css/users.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="row centrar">
+      <div class="col-md-10">
+        <div class="card">
+          <div class="card-body">
+            <div class="container">
+              <div class="text-center">
+                <h5 class="card-title text-uppercase">Salida de Mercaderías</h5>
+              </div>
+              <div class="text-right">
+                <a class="btn btn-success" type="button" href="/registrar_salida">Agregar Salida</a>
+              </div>
+            </div>
+          </div>
+          <br/>
+          <div class="table-responsive">
+            <table id="salida" class="table no-wrap salida-table mb-0">
+              <thead>
+                <tr>
+                  <th scope="col" class="border-0 text-uppercase font-medium pl-4">#</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Nro. Salida</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Descripción</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Fecha Registro</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for salida in list_salida %}
+                  <tr>
+                    <td>{{ salida.id }}</td>
+                    <td>{{ salida.nro_salida }}</td>
+                    <td>{{ salida.desc_salida }}</td>
+                    <td>{{ salida.fecha_salida.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                      <button type="button" class="btn btn-outline-success btn-circle btn-lg btn-circle ml-2 ver" data-bs-toggle="tooltip" data-bs-html="true" title="Visualizar" value="{{ salida.id }}"><i class="fa fa-eye"></i> </button>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <br/>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" role="dialog" tabindex="-1" id="view-salida-form-modal">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="titulo">Salida</h5>
+            </div>
+            <div class="modal-body" id="modal-body">
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>   
+  </div>
+
+  <script>
+    $('.ver').on('click', function() {
+      var salida = $(this).attr('value');
+      $('#view-salida-form-modal').modal('show');
+      $.ajax({
+      url:"/select_detalle_salida",
+      method:"POST",
+      data:{salida:salida},
+      success:function(data){
+        var data_rs = JSON.parse(data);
+        console.log(data_rs);
+        // Adding a row inside the tbody.
+        data_rs.forEach(i =>{
+          $('#modal-body').html(`<div class="table-responsive">
+                        <table id="ver" class="table no-wrap salida-table mb-0">
+                          <thead>
+                            <tr>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Producto</th>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Cantidad</th>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Costo</th>
+                            </tr>
+                          </thead>
+                          <tbody id="detalles">
+            
+                            </tbody>
+                        ` ); 
+        // Adding a row inside the tbody.
+        data_rs.forEach(i =>{
+          $('#detalles').append(`
+              <tr>
+                  <td>${i['codigo']}</td>
+                  <td>${i['cantidad']}</td>
+                  <td>${i['precio']}</td>
+                </tr> 
+              `);
+            });
+                              
+        $('#titulo').html("Detalle de la salida número: " + data_rs[0]['numero']);
+        });
+      }
+      });
+    });
+  </script>
+
+
+  
+  <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js" ></script>
+  <script src="//cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js" ></script>
+  <script src="{{url_for('static', filename='javascript/users.js')}}"></script>
+</body>
+
+{% endblock %}

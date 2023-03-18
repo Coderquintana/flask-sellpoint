@@ -1,0 +1,337 @@
+{% extends "base.html" %} 
+{% block title %}Reporte Caja{% endblock %} 
+{% block content %}
+<head>
+
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/users.css" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <style type="text/css">
+    @media screen {
+      #printSection {
+          display: none;
+          width: 1000px;
+          margin: 2px;
+      }
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printSection, #printSection * {
+        visibility: visible;
+        margin: 2px;
+      }
+      #printSection {
+        position: absolute;
+        top: 0;
+      }
+      #modal-footer *{
+        visibility: hidden;
+      }
+      .dataTables_paginate{
+        display:none;
+      }
+      .dataTables_info{
+        display:none;
+      }
+      .dataTables_filter{
+        display:none;
+      }
+      .dataTables_length{
+        display:none;
+      }
+      .btn{
+        display:none;
+      }
+      .card-title{
+        color:black;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card" id="printThis2">
+        <div class="card-body">
+          <div class="container">
+            <div class="text-center">
+              <h5 class="card-title text-uppercase">Reporte Caja</h5>
+              <div class="row">
+                <div class="col-md-3 d-flex">
+                  <label>Desde:</label>
+                  <input class="form-control" type="date" id="desde" name="desde" value="2022-01-01">
+                  <label>Hasta:</label>
+                  <input class="form-control" type="date" id="hasta" name="hasta" value="2022-12-30">
+                </div>
+                <div class="col-md-8 d-flex justify-content-end">
+                  <button class="btn btn-danger" id="btnExport"><i class="bi bi-filetype-pdf"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <br>
+        <div class="table-responsive">
+            <table id="cajass" class="table no-wrap user-table mb-0">
+              <thead>
+                <tr>
+                  <th scope="col" class="border-0 text-uppercase font-medium pl-4">#</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Nro Caja</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Fecha</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Monto Inicio</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Monto Cierre</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="detalle-caja">
+                {% for caja in list_caja %}
+                <tr>
+                  <td>{{ caja.id }}</td>
+                  <td>{{ caja.nro_caja }}</td>
+                  <td>{{ caja.fecha.strftime('%Y-%m-%d') }}</td>
+                  <td class="formato">{{ caja.monto_inicial }}</td>
+                  <td class="formato">{{ caja.monto_cierre }}</td>                  
+                  <!-- <td>
+                    <select class="form-control" name="facts" id="facts">
+                      {% for factura in list_facturas %}
+                        {% if factura.nro_caja == caja.nro_caja %}
+                        <option value="">{{factura.nro_factura}}</option>
+                        {% endif %}
+                      {% endfor %}
+                    </select>
+                  </td> -->
+                  <td>
+                    <button type="button"   class="btn btn-outline-success btn-circle btn-lg btn-circle mostrar" data-bs-toggle="tooltip" data-bs-html="true" title="Seleccionar" id="{{caja.nro_caja}}"><i class="bi bi-eye"></i></button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <br/>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Modal -->
+    <div id="printThis">
+      <div class="modal fade" id="mostrar" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modal-title"></h5>
+            </div>
+            <div class="modal-body" id="modal-bodyy">
+
+            </div>
+            <div class="modal-footer" id="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+              <button class="btn btn-danger" id="btnPrint"><i class="bi bi-filetype-pdf"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.6/vfs_fonts.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('#cajass').DataTable( {
+        language: {
+        "decimal": "",
+        "emptyTable": "No hay información",
+        "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+        "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+        "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+        "infoPostFix": "",
+        "thousands": ",",
+        "lengthMenu": "Mostrar _MENU_ Entradas",
+        "loadingRecords": "Cargando...",
+        "processing": "Procesando...",
+        "search": "Buscar:",
+        "zeroRecords": "Sin resultados encontrados",
+        "paginate": {
+          "first": "primero",
+          "last": "Ultimo",
+          "next": "Siguiente",
+          "previous": "Anterior" }
+        }
+      });
+      var minDate, maxDate;
+ 
+      // Custom filtering function which will search data in column four between two values
+      $.fn.dataTable.ext.search.push(
+        function( settings, data, dataIndex ) {
+          var min = minDate.val();
+          var max = maxDate.val();
+          var date = data[2];
+
+          if (
+              ( min === null && max === null ) ||
+              ( min === null && date <= max ) ||
+              ( min <= date   && max === null ) ||
+              ( min <= date   && date <= max )
+          ) {
+              return true;
+          }
+          return false;
+        }
+      );
+      // Create date inputs
+      minDate = $('#desde');
+      maxDate = $('#hasta');
+      
+      // DataTables initialisation
+      var table = $('#cajass').DataTable();
+  
+      // Refilter the table
+      $('#desde, #hasta').on('change', function () {
+          table.draw();
+      });
+    });
+    $(document).ready(function() {
+      $('.myselect').select2({
+        placeholder: "Filtrar",
+        allowClear: true
+      });
+    });
+    $('.mostrar').on('click', function(){
+      $('#mostrar').modal('show');
+      var nro_caja = $(this).attr('id');
+      var efectivo = 0, tarjeta = 0, transferencia = 0, totalgral = 0;
+      $.ajax({
+        url:"/selectcaja",
+        method:"POST",
+        data:{nro_caja:nro_caja},
+       
+        success:function(data){
+          var data_rs = JSON.parse(data);
+          $('#modal-title').html(`<strong>Caja:</strong> ${data_rs[0]['nro_caja']} <br><label><strong>Usuario: </strong></label> ${data_rs[0]['user_id']} ${data_rs[0]['user_name']}`);
+          $('#modal-bodyy').html(`
+            <div class = "row">
+              <div class = "col">
+                <label><strong>Fecha Inicio: </strong></label> ${new Date(data_rs[0]['fecha']).toLocaleDateString()}<br>
+                <label><strong>Hora Apertura: </strong></label> ${new Date(data_rs[0]['fecha']).toLocaleTimeString('en-US', { timeZone: 'America/Asuncion', hour12: false })}<br>
+                <label><strong>Monto inicial: </strong></label> ${en_formatter.format(data_rs[0]['monto_inicial'])} G
+              </div>
+              <div class = "col">
+                <label><strong>Fecha Cierre: </strong></label> ${new Date(data_rs[0]['fecha_cierre']).toLocaleDateString()}<br>
+                <label><strong>Hora Cierre: </strong></label> ${new Date(data_rs[0]['fecha_cierre']).toLocaleTimeString('en-US', { timeZone: 'America/Asuncion', hour12: false })}
+              </div>
+            </div>
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th scope="col">Factura</th>
+                  <th scope="col">Cliente</th>
+                  <th scope="col">Efectivo</th>
+                  <th scope="col">Tarjeta</th>
+                  <th scope="col">Transferencia</th>
+                  <th scope="col">Total</th>
+                </tr>
+              </thead>
+              <tbody id="detalle${nro_caja}">
+              </tbody>
+              <tfoot class="table-group-divider" id="total${nro_caja}">
+                
+              </tfoot>
+            </table>          
+          `);
+          $.ajax({
+            url:"/selectcajafactura",
+            method:"POST",
+            data:{nro_caja:nro_caja},
+          
+            success:function(data){
+              var data_rs2 = JSON.parse(data);
+              data_rs2.forEach(linea => {
+                $('#detalle'+nro_caja).append(`<tr>
+                  <th scope="row">${linea['nro_factura']}</th>
+                  <td>${linea['cliente']}</td>
+                  <td>` + (linea['forma_pago'] == 'Efectivo' ? `${en_formatter.format(linea['monto_total'])}` : `0`) + `</td>
+                  <td>` + (linea['forma_pago'] == 'Tarjeta' ? `${en_formatter.format(linea['monto_total'])}` : `0`) + `</td>
+                  <td>` + (linea['forma_pago'] == 'Transferencia' ? `${en_formatter.format(linea['monto_total'])}` : `0`) + `</td>
+                  <td>${en_formatter.format(linea['monto_total'])}</td>
+                </tr>`);
+                if (linea['forma_pago'] == 'Efectivo'){
+                  efectivo += linea['monto_total'];
+                }else if (linea['forma_pago'] == 'Tarjeta'){
+                  tarjeta += linea['monto_total'];
+                }else{
+                  transferencia += linea['monto_total'];
+                }
+                totalgral += linea['monto_total'];
+              });
+              $('#total'+nro_caja).append(`
+                <tr>
+                  <th scope="col">Total General</th>
+                  <th></th>
+                  <th>${en_formatter.format(efectivo)}</th>
+                  <th>${en_formatter.format(tarjeta)}</th>
+                  <th>${en_formatter.format(transferencia)}</th>
+                  <th>${en_formatter.format(totalgral)}</th>
+                </tr>
+              `);
+            }
+          });
+        }
+      });
+    });
+
+    const en_formatter = new Intl.NumberFormat('es-ES', {maximumFractionDigits: 0 });
+
+    new AutoNumeric.multiple('.formato', {
+      allowDecimalPadding: false,
+      unformatOnSubmit: true,
+      decimalCharacter : ',',
+      digitGroupSeparator : '.',
+    });
+  </script>
+  <script>
+    document.getElementById("btnPrint").onclick = function () {
+      printElement(document.getElementById("printThis"));
+    }
+    function printElement(elem) {
+      var domClone = elem.cloneNode(true);
+      
+      var $printSection = document.getElementById("printSection");
+      
+      if (!$printSection) {
+        var $printSection = document.createElement("div");
+        $printSection.id = "printSection";
+        document.body.appendChild($printSection);
+      }
+      
+      $printSection.innerHTML = "";
+      $printSection.appendChild(domClone);
+      window.print();
+      location.reload();
+    }
+  </script>
+  <script>
+    document.getElementById("btnExport").onclick = function () {
+      printElement(document.getElementById("printThis2"));
+    }
+    function printElement(elem) {
+      var domClone = elem.cloneNode(true);
+      
+      var $printSection = document.getElementById("printSection");
+      
+      if (!$printSection) {
+        var $printSection = document.createElement("div");
+        $printSection.id = "printSection";
+        document.body.appendChild($printSection);
+      }
+      
+      $printSection.innerHTML = "";
+      $printSection.appendChild(domClone);
+      window.print();
+    }
+  </script>
+</body>
+{% endblock %}

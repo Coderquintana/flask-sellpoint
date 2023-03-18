@@ -1,0 +1,82 @@
+{% extends "base.html" %} 
+{% block title %}Productos Comprados{% endblock %} 
+{% block content %}
+<head>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" />
+  <link rel="stylesheet" href="/static/css/users.css" />
+  <style type="text/css">
+    @media screen {
+      #printSection {
+          display: none;
+          width: 100px;
+          margin: 2px;
+      }
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printSection, #printSection * {
+        visibility: visible;
+        margin: 2px;
+      }
+      #printSection {
+        position: absolute;
+        left:0;
+        top:0;
+        right:0;
+      }
+      #modal-footer *{
+        visibility: hidden;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row" id="PrintThis">
+      <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+              <div class="container">
+                <div class="text-center">
+                  <h5 class="card-title text-uppercase">Productos Comprados</h5>
+                </div>
+                <div class="row">
+                  <div class="col-md-2">
+                    <div class="form-group">
+                      <button class="btn btn-success confirmar_fecha" type="button" id="imprimir">Imprimir Reporte</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <br/>
+            <div class="table-responsive">
+                <table id="inventario" class="table no-wrap inventario-table mb-0">
+                  <thead>
+                    <tr>
+                      <th scope="col" class="border-0 text-uppercase font-medium">CANTIDAD</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">DESCRIPCION PRODUCTO</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for rp in list_reporte_compra %}
+                    <tr>
+                      <td>{{ rp.cantidad }}</td>
+                      <td>{{ rp.descripcion }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                <br/>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="{{url_for('static', filename='javascript/reporte_compras.js')}}"></script>
+</body>
+
+{% endblock %}

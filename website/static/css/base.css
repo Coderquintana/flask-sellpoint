@@ -1,0 +1,98 @@
+/* Colores de Logo: #19534f Verde oscuro -- #03a79d Celeste */
+
+* {
+  margin: 0px;
+  padding: 0px;
+}
+
+body,
+html {
+  background-image: url(/static/images/imagen.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  width: 100%;
+  height: 100%;
+  font-family: 'Oswald', sans-serif;
+  font-size: 20px;
+  height: 100vh;
+}
+
+.navbar {
+  text-transform: uppercase;
+  cursor: pointer;
+  background: linear-gradient(to left, #75a9db, white);
+}
+
+.navbar * {
+  box-sizing: border-box;
+  -webkit-transition: all 0.35s ease;
+  transition: all 0.05s ease;
+}
+
+.navbar .navbar-nav>li {
+  padding: 2px 10px;
+  border-right: 1px solid black;
+}
+
+.navbar .navbar-nav>li>a:hover,
+.navbar-default .navbar-nav>li>a:focus {
+  color: #0000;
+  background:
+    linear-gradient(90deg, #0c4720 50%, rgb(108, 196, 231) 0) var(--_p, 100%)/200% no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  transition: .1s;
+  text-shadow: 0 0 20px #0bccbf;
+  transform: translateY(3px);
+}
+
+.navbar-nav li:hover>ul.dropdown-menu {
+  display: block;
+}
+
+.navbar-brand1 {
+  border-right: 1px solid black;
+}
+
+.navbar-brand1:hover>.navbar-brand:hover {
+  background: #172c2b;
+  border-radius: 10px;
+  color: white;
+  box-shadow: 0 0 20px #03a79d;
+
+}
+
+.dropdown-item:hover {
+  background-color: rgb(71, 173, 160);
+  transition: background-color 0.2s ease-in-out;
+}
+
+.dropdown-submenu {
+  position: relative;
+}
+
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  margin-top: -5px;
+  left: 100%;
+}
+
+.btn2 {
+  background-color: #19534f;
+  color: white;
+}
+
+.btn2:hover {
+  background-color: #03a79d;
+  color: white;
+}
+
+.btn2:focus {
+  background-color: #19534f;
+}
+
+.modal-header {
+  background-color: #19534f;
+  color: white;
+}

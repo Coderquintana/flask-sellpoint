@@ -1,0 +1,107 @@
+{% extends "base.html" %} 
+{% block title %}Orden de Compras{% endblock %} 
+{% block content %}
+<head>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" />
+  <link rel="stylesheet" href="/static/css/users.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="container">
+              <div class="text-center">
+                <h5 class="card-title text-uppercase">Ordenes de Compras</h5>
+              </div>
+              <div class="text-right">
+                <a class="btn btn-success" type="button" data-toggle="form" href="{{url_for('views.OrdenCompra')}}">Nueva Orden Compra</a>
+              </div>
+            </div>
+          </div>
+          <br/>
+          <div class="table-responsive">
+            <table id="orden_compras" class="table no-wrap orden_compras-table mb-0">
+              <thead>
+                <tr>
+                  <th scope="col" class="border-0 text-uppercase font-medium pl-4">#</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium pl-4">Proveedor</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Descripcion</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Fecha Entrega</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Estado</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for oc in list_orden_compras %}
+                  <tr>
+                    <td>{{ oc.id }}</td>
+                    <td>{{ oc.name}}</td>
+                    <td>{{ oc.descripcion }}</td>
+                    <td>{{ oc.fecha_registro }}</td>
+                    <td>{{ oc.estado }}</td>
+                    <td>
+                      <a type="button" onClick="showAlert();" class="btn btn-outline-success btn-circle btn-lg btn-circle ml-2" data-bs-toggle="tooltip" data-bs-html="true" title="Eliminar" href="/eliminar_orden_compra/{{ oc.id }}"><i class="fa fa-trash"></i> </a>
+                      <a type="button" class="btn btn-outline-success btn-circle btn-lg btn-circle ml-2"  data-bs-toggle="tooltip" data-bs-html="true" title="Modificar" href="{{url_for('views.OrdenCompra')}}"><i class="fa fa-edit"></i> </a>
+                      <a type="button" class="btn btn-outline-success btn-circle btn-lg btn-circle ml-2"  data-bs-toggle="tooltip" data-bs-html="true" title="Confirmar" href="{{url_for('views.FacturacionCompra')}}"><i class="fa fa-check"></i> </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <br/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal para Buscar Ordenes de Compras -->
+    <div class="modal" id="modalordencompra" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Orden de Compra</h5>
+          </div>
+          <div class="modal-body">
+            <div class="container">
+              <div class="table-responsive">
+                <table id="tabla-ordencompras" class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col" class="border-0 text-uppercase font-small">Nro</th>
+                      <th scope="col" class="border-0 text-uppercase font-small">Descripcion</th>
+                      <th scope="col" class="border-0 text-uppercase font-small">Fecha</th>
+                      <th scope="col" class="border-0 text-uppercase font-small">Estado</th>
+                      <th scope="col" class="border-0 text-uppercase font-small">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for oc in list_orden_compras %}
+                    <tr>
+                      <td>{{ oc.id }}</td>
+                      <td>{{ oc.descripcion }}</td>
+                      <td>{{ oc.fecha_registro }}</td>
+                      <td>{{ oc.estado }}</td>
+                      <td>
+                        <button type="button" class="btn btn-outline-success btn-circle btn-circle carga_ordencompra" data-bs-toggle="tooltip" data-bs-html="true" title="Modificar" id="{{ oc.id }}"><i class="bi bi-box-arrow-down"></i></button>
+                        <a type="button" class="btn btn-outline-success btn-circle btn-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Eliminar" href="/eliminar_orden_compra/{{ oc.id }}"><i class="fa fa-trash"></i> </a>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                <br/>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js" ></script>
+  <script src="//cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js" ></script>
+  <script src="{{url_for('static', filename='javascript/ordencompra.js')}}"></script>
+</body>
+
+{% endblock %}

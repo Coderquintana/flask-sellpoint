@@ -1,0 +1,36 @@
+/* Colores de Logo: #19534f Verde oscuro -- #03a79d Celeste */
+
+* {
+    margin:0;
+    padding:0;
+}
+
+.section{
+    width: auto;
+    height: auto;
+    border-color: #051d1b;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 10px;
+    background:#ffffff;
+    background-image: image();
+    margin: auto;
+    box-shadow: 0 0 20px #000000;
+}
+
+.table{
+    margin:auto;
+}
+
+.btn{
+    background-color: #03a79d;
+    color:black;
+}
+
+tfoot{
+    justify-content: center;
+}
+
+.micontainer{
+    box-shadow: 0 0 1px #000000;
+}

@@ -1,0 +1,139 @@
+{% extends "base.html" %} 
+{% block title %}Reporte Ventas{% endblock %} 
+{% block content %}
+<head>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/users.css" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+  <style>
+    @media screen {
+      #printSection {
+          display: none;
+      }
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printSection, #printSection * {
+        visibility: visible;
+        margin: 2px;
+      }
+      #printSection {
+        position: absolute;
+        left:0;
+        top:0;
+      }
+      #modal-footer *{
+        visibility: hidden;
+      }
+      .btn{
+        display: none;
+      }
+      .select2{
+        display:none;
+      }
+      .dataTables_paginate{
+        display:none;
+      }
+      .dataTables_info{
+        display:none;
+      }
+      .dataTables_filter{
+        display:none;
+      }
+      .dataTables_length{
+        display:none;
+      }
+      #accion{
+        display:none;
+      }
+      .card-title{
+        color:black;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card" id="printThis"> 
+          <div class="card-body">
+            <div class="container">
+              <div class="text-center">
+                <h5 class="card-title text-uppercase">Reporte Facturas</h5>
+                <div class="row">
+                  <div class="col-md-2">
+                    <label>Desde:</label>
+                    <input class="form-control" type="date" id="desde" name="desde" value="2022-01-01">
+                  </div>
+                  <div class="col-md-2">
+                    <label>Hasta:</label>
+                    <input class="form-control" type="date" id="hasta" name="hasta" value="2022-12-30">
+                  </div>
+                  <div class="col-md-8 d-flex justify-content-end">
+                    <button class="btn btn-danger" id="btnExport"><i class="bi bi-filetype-pdf"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <br>
+          <div class="table-responsive">
+            <table id="facturas" class="table no-wrap user-table mb-0">
+              <thead>
+                <tr>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Nro Factura</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Cliente</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Condicion Pago</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Forma Pago</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Monto</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Fecha</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium" id="accion">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="detalle-fact">
+                {% for factura in list_facturas %}
+                <tr>
+                  <td>{% if factura.anulado == True %}<p class="text-danger">{{ factura.nro_factura }}</p>{% else %}{{ factura.nro_factura }}{% endif %}</td>
+                  <td>{{ factura.name }}</td>
+                  <td>{{ factura.condicion_pago }}</td>
+                  <td>{{ factura.forma_pago }}</td>
+                  <td class="formato">{{ factura.monto_total }}</td>
+                  <td>{{ factura.fecha.strftime('%Y-%m-%d') }}</td>
+                  <td>
+                    <button type="button" class="btn btn-outline-success btn-circle btn-lg btn-circle mostrar" data-bs-toggle="tooltip" data-bs-html="true" title="Seleccionar" id="{{ factura.nro_factura }}"><i class="bi bi-eye"></i></button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Modal -->
+    <div class="modal fade" id="mostrar" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+      <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Factura</h5>
+              </div>
+          <div class="modal-body" id="modal-bodyy">
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="{{url_for('static', filename='javascript/reporte_venta.js')}}"></script>
+</body>
+{% endblock %}

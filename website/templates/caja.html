@@ -1,0 +1,217 @@
+{% extends "base.html" %} 
+{% block title %}Caja{% endblock %} 
+{% block content %}
+
+<head>
+  <link rel="stylesheet" href="/static/css/venta/caja.css">
+
+</head>
+<body>
+  <div class="row">
+    <div class="col-md-8 columna">
+      <div class="card">
+        <div class="card-body">
+          <div class="container">
+            <div class="text-center">
+              <h5 class="card-title text-uppercase">Caja</h5>
+            </div>
+            <div class="text-right">
+              <button class="btn btn-success" type="button" data-toggle="modal" data-target="#apertura-caja" data-bs-toggle="tooltip" data-bs-html="true" title="Apertura de caja">Apertura Caja</button>
+            </div>
+          </div>
+        </div>
+        <br/>
+        <div class="table-responsive">
+          <table id="tabla_roles" class="table no-wrap roles-table mb-0">
+            <thead>
+              <tr>
+                <th scope="col" class="border-0 text-uppercase font-medium">User</th>
+                <th scope="col" class="border-0 text-uppercase font-medium">Nro. Caja</th>
+                <th scope="col" class="border-0 text-uppercase font-medium">Monto Inicial</th>
+                <th scope="col" class="border-0 text-uppercase font-medium">Fecha</th>
+                <th scope="col" class="border-0 text-uppercase font-medium">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for caja in list_caja %}
+              <tr>
+                <td>{{ caja.user_id }}</td>
+                <td>{{ caja.nro_caja }}</td>
+                <td class="formatear">{{ caja.monto_inicial }}</td>
+                <td>{{ caja.fecha.strftime('%Y-%m-%d') }}</td>
+                <td>
+                  <button type="button" class="btn btn-outline-success btn-circle btn-lg btn-circle ml-2 ver_caja" id="{{ caja.nro_caja }}" data-bs-toggle="tooltip" data-bs-html="true" title="Ver"><i class="bi bi-eye-fill"></i></button>
+                  <a type="button" class="btn btn-outline-success btn-circle btn-lg btn-circle ml-2" data-bs-toggle="tooltip" data-bs-html="true" title="Eliminar" href="/eliminar_caja/{{ caja.id }} "><i class="fa fa-trash"></i> </a>
+                  <button type="button" class="btn btn-outline-success btn-circle btn-lg btn-circle ml-2 view_data" id="{{ caja.nro_caja }}" data-bs-toggle="tooltip" data-bs-html="true" title="Cierre Caja"><i class="bi bi-key"></i></button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <br/>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 columna">
+      <div class="card">
+        <div class="card-body">
+          <div class="container">
+            <div class="text-center">
+              <h5 class="card-title text-uppercase">Montos</h5>
+              <button class="btn btn-success" type="button" id="cobrar-env" data-toggle="modal" data-target="#cobrar-envio">Registrar Pago</button>
+              {% if current_user.id == 1%}
+              <button class="btn btn-danger" type="button" id="retirar-dinero" data-toggle="modal" data-target="#retirar" hidden>Retirar Efectivo</button>
+              {% endif %}
+            </div> 
+          </div>
+        </div>
+        <div class="container">
+          <label class="mylabel" for="monto-actual">Monto Actual</label>
+          <input class="form-control formato" type="text" name="monto-actual" id="monto-actual" value="" readonly>
+          <label for="monto-inicial">Monto Inicial</label>
+          <input class="form-control formato" type="text" name="monto-inicial" id="monto-inicial" value="" readonly>
+          <label for="monto-cierre">Monto Cierre</label>
+          <input class="form-control formato" type="text" name="cierre" id="cierre" value="" readonly>
+          <br/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <!--Apertura-Caja -->
+  <div class="modal fade" id="apertura-caja" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Inicio Caja</h5>
+        </div>
+        <div class="modal-body">
+          <div class="py-1">
+            <form class="form" action="{{ url_for('views.aperturaCaja') }}" method="post" autocomplete="off">
+              <div class="row">
+                <div class="col">
+                  <input id="apertura" class="form-control" name="user-id" id="user-id" value="{{ current_user.id }}" hidden/>
+                  <div class="row">
+                    <div class="col">
+                      <div class="form-group">
+                        <label for="usuario">Numero Caja</label>
+                        <input type="text" class="form-control formatear" name="nro-caja" id="nro-caja" placeholder="Ingrese Número" step="number" required>
+                      </div>
+                    </div>
+                    <div class="col">
+                      <div class="form-group">
+                        <label>Monto Inicial</label>
+                        <input type="text" class="form-control formatear" name="monto-inicial" id="monto-inicial" placeholder="Ingrese Monto" required>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col d-flex justify-content-end">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal" >Cancelar</button>
+                      <button class="btn btn-primary" type="submit">Guardar</button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--Cierre-Caja -->
+  <div class="modal fade" id="cierre-caja" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Cierre Caja</h5>
+        </div>
+        <div class="modal-body">
+          <div class="py-1">
+            <form class="form" action="{{ url_for('views.cierreCaja') }}" method="post" autocomplete="off">
+              <div class="row">
+                <div class="col">
+                  <div class="row">
+                    <div class="col">
+                      <input type="number" id="monto-ini" name="monto-ini" value="" hidden>
+                      <input type="number" id="monto-act" name="monto-act" value="" hidden>
+                      <input type="number" id="user-caja" name="user-caja" value="" hidden>
+                      <div class="form-group">
+                        <label for="usuario">Numero Caja</label>
+                        <input class="form-control" name="nro-caj" id="nro-caj" value="" readonly/>
+                      </div>
+                    </div>
+                    <div class="col">
+                      <div class="form-group">
+                        <label>Monto Cierre</label>
+                        <input type="text" class="form-control formatear" name="monto-cierre" id="monto-cierre" placeholder="Ingrese Monto" required>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col d-flex justify-content-end">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" >Cancelar</button>
+                      <button class="btn btn-primary" type="submit">Guardar</button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--Cobro-Envio -->
+  <div class="modal fade" id="cobrar-envio" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <form class="form" action="{{ url_for('views.registrarCobro') }}" method="post" autocomplete="off">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Ingresar Nro. Factura</h5>
+          </div>
+          <div class="modal-body">
+            <label for="">Nro. Factura</label>
+            <input class="form-control" type="text" name="factura-enviada" id="factura-enviada">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            <button type="submit" class="btn btn-primary">Confirmar</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal fade" id="retirar" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <form class="form" action="{{ url_for('views.retirarDinero') }}" method="post" autocomplete="off">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Retirar Dinero</h5>
+          </div>
+          <div class="modal-body">
+            <label for="">Ingrese Monto</label>
+            <input class="form-control formatear" type="text" name="retirar-monto" id="retirar-monto">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            <button type="submit" class="btn btn-primary">Confirmar</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="{{url_for('static', filename='javascript/caja.js')}}"></script>
+</body>
+
+{% endblock %}

@@ -1,0 +1,90 @@
+*{
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.body{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+h3{
+  text-align: center;
+  color:white;
+}
+
+.box{
+  position: relative;
+  width: 420px;
+  height: 480px;
+  margin: auto;
+  background-color: black;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.box::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 420px;
+  height: 480px;
+  background: linear-gradient(0deg, transparent, #45f3ff , #45f3ff);
+  transform-origin: bottom right;
+  animation: animate 6s linear infinite;
+}
+.box::after{
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 420px;
+  height: 480px;
+  background: linear-gradient(0deg, transparent, #45f3ff , #45f3ff);
+  transform-origin: bottom right;
+  animation: animate 6s linear infinite;
+  animation-delay: -3s;
+}
+
+.form{
+  position: absolute;
+  inset: 2px;
+  background-image: url(/static/images/imagen.jpg);
+  border-radius: 8px;
+  z-index: 10;
+}
+
+.login-datos{
+  text-align: center;
+}
+
+.btn{
+  outline: none;
+  background-color: #03a79d;
+  padding:  11px 25px;
+  margin: 10px;
+  border-radius: 4px;
+  font-weight: 600;
+  color:black;
+}
+
+.form-control{
+  margin: 10px;
+  background-color: rgb(204, 236, 225);
+  width: 95%;
+}
+
+@keyframes animate {
+  0%
+  {
+    transform: rotate(0deg);
+  }
+  100%
+  {
+    transform: rotate(360deg);
+  }
+}

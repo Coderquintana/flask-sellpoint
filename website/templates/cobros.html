@@ -1,0 +1,211 @@
+{% extends "base.html" %} 
+{% block title %}Cobro a Clientes{% endblock %} 
+{% block content %}
+
+<style type="text/css">
+  @media screen {
+    #printSection {
+        display: none;
+    }
+  }
+
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    
+    #printSection, #printSection * {
+      visibility: visible;
+    }
+    #printSection {
+      position: absolute;
+      left:0;
+      top:0;
+      margin: 10px;
+    }
+
+    .btn{
+      display: none;
+    }
+    .modal-title{
+      color:black;
+    }
+  }
+</style>
+<head>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" />
+  <link rel="stylesheet" href="/static/css/users.css" />
+</head>
+<body>
+  <div class="section">
+    <div class="section-center" id="final">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-body">
+                <div class="container">
+                  <div class="text-center">
+                    <h5 class="card-title text-uppercase">Registros de cobros</h5>
+                  </div>
+                  <div class="text-right">
+                    <button class="btn btn-success" type="button" data-toggle="modal" data-target="#cobro-form-modal">Registrar cobro</button>
+                  </div>
+                </div>
+              </div>
+              <br/>
+              <div class="table-responsive">
+                <table id="cobros" class="table no-wrap cobros-table mb-0">
+                  <thead>
+                    <tr>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Nro. Documento</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Nombre</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Nro. Recibo</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Fecha de carga</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for cobros in list_cobros %}
+                      <tr>
+                        <td>{{ cobros.ci_ruc }}</td>
+                        <td>{{ cobros.name }}</td>
+                        <td>{{ cobros.nro_recibo }}</td>
+                        <td>{{ cobros.creation_date.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                          <a type="button" onClick="showAlert();" class="btn btn-outline-success btn-circle btn-lg btn-circle ml-2" data-bs-toggle="tooltip" data-bs-html="true" title="Eliminar" href="/eliminar_cobro/{{ cobros.id }}"><i class="fa fa-trash"></i> </a>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                <br/>
+              </div>
+            </div>
+          </div>
+                <!-- Cobro Form Modal -->
+        <div  id="printThis">
+        <div class="modal fade" role="dialog" tabindex="-1" id="cobro-form-modal">
+          <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Carga de recibo</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                  <span aria-hidden="true">×</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="py-1">
+                  <form class="form" novalidate="" action="{{ url_for('views.agregarCobro') }}" method="post" autocomplete="off">
+                    <div class="row">
+                      <div class="col">
+                        <div class="row">
+                          <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Nro. Recibo</label>
+                                <input class="form-control" id="nro_recibo" name="nro_recibo"">
+                              </div>
+                          </div>
+                          <div class="col-md-4">
+                            <div class="form-group">
+                                <input class="form-control" name="user-id" id="user-id" value="{{ current_user.id }}" hidden />
+                                <label>Nro. Documento</label>
+                                <input class="form-control view_cliente2"  list="doc-cliente" id="ci-ruc" name="ci-ruc" placeholder="RUC - CI" value="" required>
+                                <datalist id="doc-cliente" >
+                                  {% for cliente in list_clientes %}
+                                  <option value="{{cliente.ci_ruc}}">{{cliente.name}}</option>
+                                  {% endfor %}
+                                </datalist>
+                            </div>
+                          </div>
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Nombres y Apellidos</label>
+                              <input class="form-control" type="text" id="name" name="name">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Seleccione la factura</label>
+                                <select class="form-control category-select" id="factura" name="factura">
+                                    <option value=""></option>
+                                </select>
+                              </div>
+                          </div>
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Método de pago</label>
+                              <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipo_pago" id="efectivo" value="Efectivo">
+                                <label class="form-check-label" for="flexRadioDefault21"></label>
+                                  Efectivo
+                              </div>
+                              <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipo_pago" id="tarjeta" value="Tarjeta">
+                                <label class="form-check-label" for="flexRadioDefault22"></label>
+                                  Tarjeta
+                              </div>
+                              <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipo_pago" id="transferencia" value="Transferencia">
+                                <label class="form-check-label" for="flexRadioDefault23"></label>
+                                  Transferencia
+                              </div>
+                              <div class="form-group">
+                                <label id="lbl_tar" hidden>Datos Tarjeta</label>
+                                <input class="form-control" type="text" id="dato_tar" name="dato_tar" value="" hidden>
+                              </div>
+                              <div class="form-group">
+                                <label id="lbl_tra" hidden>Datos Transferencia</label>
+                                <input class="form-control" type="text" id="dato_tra" name="dato_tra" value="" hidden>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Total a cobrar</label>
+                              <input class="form-control-input formato" type="numeric" id="total_cobro_efe" name="total_cobro_efe" >
+                              <input class="form-control-input formato" type="numeric" id="total_cobro_tar" name="total_cobro_tar">
+                              <input class="form-control-input formato" type="numeric" id="total_cobro_tra" name="total_cobro_tra">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Descripción del recibo</label>
+                              <input class="form-control" type="text" name="descripcion" value="Cobro de s/factura ">
+                            </div>
+                          </div>
+                        </div>
+                        </div>
+                      </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                      <div class="modal-footer">
+                        <button type="submit" id="guardar" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-danger cancel" data-dismiss="modal">Cerrar</button>        
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js" ></script>
+  <script src="//cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js" ></script>
+  <script src="{{url_for('static', filename='javascript/cobro.js')}}"></script>
+
+
+</body>
+
+{% endblock %}

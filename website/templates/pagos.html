@@ -1,0 +1,242 @@
+{% extends "base.html" %} 
+{% block title %}Pago a Proveedores{% endblock %} 
+{% block content %}
+<head>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" />
+  <link rel="stylesheet" href="/static/css/users.css" />
+  <style type="text/css">
+    @media screen {
+      #printSection {
+          display: none;
+          width: 100px;
+          margin: 2px;
+      }
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printSection, #printSection * {
+        visibility: visible;
+        margin: 2px;
+      }
+      #printSection {
+        position: absolute;
+      }
+      #modal-footer *{
+        visibility: hidden;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="container">
+              <div class="text-center">
+                <h5 class="card-title text-uppercase">Registro de pagos</h5>
+              </div>
+              <div class="text-right">
+                <label>Cantidad de Facturas Pendientes de Pago: </label>
+                <td>{{(fact_pend)}}</td>
+                <button class="btn btn-success pagos-pendientes" type="button" data-toggle="modal" data-target="#modalpagospendientes">Visualizar</button>
+              </div>
+              <div>
+                <label> </label>
+              </div>
+              <div class="text-right">
+                <button class="btn btn-success" type="button" data-toggle="modal" data-target="#pago-form-modal">Registrar pago</button>
+              </div>
+            </div>
+          </div>
+          <br/>
+          <div class="table-responsive">
+            <table id="pagos" class="table no-wrap pagos-table mb-0">
+              <thead>
+                <tr>
+                  <th scope="col" class="border-0 text-uppercase font-medium">#</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Nro. Documento</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Nombre</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Descripcion</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Monto Pagado</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Fecha Pago</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for pagos in list_pagos %}
+                  <tr>
+                    <td>{{ pagos.id }}</td>
+                    <td>{{ pagos.ci_ruc }}</td>
+                    <td>{{ pagos.name }}</td>
+                    <td>{{ pagos.descripcion }}</td>
+                    <td class="formato">{{ pagos.total_pagado }}</td>
+                    <td>{{ pagos.creation_date }}</td>
+                    <td>
+                      <a type="button" class="btn btn-outline-success btn-circle btn-lg btn-circle ml-2" data-bs-toggle="tooltip" data-bs-html="true" title="Eliminar" href="/eliminar_pago/{{ pagos.id }}"><i class="fa fa-trash"></i> </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <br/>
+          </div>
+        </div>
+      </div>
+            <!-- Pago Form Modal -->
+    <div class="modal fade " role="dialog" tabindex="-1" id="pago-form-modal">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Comprobante de Pago</h5>
+            <button type="button" class="close" data-dismiss="modal">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="py-1">
+              <form class="form" novalidate="" action="{{ url_for('views.agregarPago') }}" method="post" autocomplete="off">
+                <div class="row">
+                  <div class="col">
+                    <div class="row">
+                      <div class="col-md-5">
+                        <div class="form-group">
+                            <input class="form-control" name="sgtepago" id="sgtepago" value="{{ data2 }}" hidden/>
+                            <input class="form-control" name="user-id" id="user-id" value="{{ current_user.id }}" hidden />
+                            <label>RUC - CI</label>
+                            <input class="form-control view_proveedor"  list="doc-proveedor" id="ci_ruc" name="ci_ruc" placeholder="RUC - CI" value="" required>
+                            <datalist id="doc-proveedor" >
+                              {% for proveedor in list_proveedor %}
+                              <option value="{{proveedor.ci_ruc}}">{{proveedor.name}}</option>
+                              {% endfor %}
+                            </datalist>
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Datos del Proveedor</label>
+                          <input class="form-control" type="text" id="name" name="name">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Factura Pendiente</label>
+                            <input class="form-control" id="nro_factura_compra" name="nro_factura_compra" placeholder="Nro Factura" required></input>
+                          </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Métodos de pago</label><br>
+                          <select class="form-control" name="tipo_pago" id="tipo_pago" value="">
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Tarjeta">Cheque</option>
+                            <option value="Transferencia">Transferencia</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Fecha vencimiento</label>
+                          <input class="form-control" id="fecha" name="fecha">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Monto Total Factura</label>
+                          <input class="form-control"  id="monto_total" name="monto_total"  readonly>
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Saldo Pendiente</label>
+                          <input class="form-control"  id="saldo_factura" name="saldo_factura"  readonly>
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Importe a Pagar</label>
+                          <input class="form-control formato" type="numeric" id="monto_pagar" name="monto_pagar">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Descripción del pago</label>
+                          <input class="form-control" type="text" id="descripcion" name="descripcion" value="" placeholder="Pago de fact/0001">
+                        </div>
+                      </div>
+                    </div>
+                    </div>
+                  </div>
+                </div>
+                <br />
+                <div class="row">
+                  <div class="col d-flex justify-content-end">
+                    <button class="btn btn-primary" type="submit" id="confirmar">Confirmar</button>
+                    <button type="button" class="btn btn-danger cancel" id="cerrar" data-dismiss="modal">Cerrar</button>        
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagos pendientes Form Modal -->
+    <div class="modal" id="modalpagospendientes" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Pagos Pendientes</h5>
+          </div>
+          <div class="modal-body">
+            <div class="container">
+              <div class="table-responsive">
+                <table id="pagospendientes" class="table">
+                  <thead>
+                    <tr>
+                     <th scope="col" class="border-0 text-uppercase font-medium">Fecha Vencimiento</th>
+                     <th scope="col" class="border-0 text-uppercase font-medium">Proveedor</th>
+                     <th scope="col" class="border-0 text-uppercase font-medium">Nro. Factura</th>
+                     <th scope="col" class="border-0 text-uppercase font-medium">Monto Factura</th>
+                     <th scope="col" class="border-0 text-uppercase font-medium">Saldo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                   {% for pp in pagos_pendientes %}
+                    <tr>
+                      <td>{{ pp.fecha }}</td>
+                      <td>{{ pp.name }}</td>
+                      <td>{{ pp.nro_factura_compra }}</td>
+                      <td class="formato"> {{pp.monto_total}} </td>
+                      <td class="formato">{{ pp.saldo_factura }}</td>
+                    </tr>
+                   {% endfor %}
+                  </tbody>
+                </table>
+                <br/>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+  <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js" ></script>
+  <script src="//cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js" ></script>
+  <script src="{{url_for('static', filename='javascript/pago.js')}}"></script>
+
+
+</body>
+
+{% endblock %}

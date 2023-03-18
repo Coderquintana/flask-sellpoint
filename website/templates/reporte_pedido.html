@@ -1,0 +1,298 @@
+{% extends "base.html" %} 
+{% block title %}Reporte Pedidos{% endblock %} 
+{% block content %}
+<head>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/users.css" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <style>
+    .modal-body {
+      display: grid;
+      grid-template-columns: 1fr 3fr;
+    }
+  </style>
+  <style type="text/css">
+    @media screen {
+      #printSection {
+          display: none;
+          width: 1000px;
+          margin: 2px;
+      }
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printSection, #printSection * {
+        visibility: visible;
+        margin: 2px;
+      }
+      #printSection {
+        position: absolute;
+        top: 0;
+      }
+      #modal-footer *{
+        visibility: hidden;
+      }
+      .dataTables_paginate{
+        display:none;
+      }
+      .dataTables_info{
+        display:none;
+      }
+      .dataTables_filter{
+        display:none;
+      }
+      .dataTables_length{
+        display:none;
+      }
+      .btn{
+        display:none;
+      }
+      .select2{
+        display:none;
+      }
+      .card-title{
+        color:black;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card" id="printThis">
+          <div class="card-body">
+            <div class="container">
+              <div class="text-center">
+                <h5 class="card-title text-uppercase">Reporte Pedido</h5>
+                <div class="row">
+                  <div class="col-md-3 d-flex">
+                    <label>Desde:</label>
+                    <input class="form-control" type="date" id="desde" name="desde" value="2022-01-01">
+                    <label>Hasta:</label>
+                    <input class="form-control" type="date" id="hasta" name="hasta" value="2022-12-30">
+                  </div>
+                  <div class="col-md-8 d-flex justify-content-end">
+                    <button class="btn btn-danger" id="btnExport"><i class="bi bi-filetype-pdf"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <br>
+          <div class="table-responsive">
+            <table id="pedidoss" class="table no-wrap user-table mb-0">
+              <thead>
+                <tr>
+                  <th scope="col" class="border-0 text-uppercase font-medium pl-4">#</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Estado</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Fecha Registro</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Cliente</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Fecha Entrega</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="detalle-pedi">
+                {% for pedido in list_pedido %}
+                <tr>
+                  <td>{{ pedido.id }}</td>
+                  {% if pedido.estado == '1' %}
+                    <td>Pendiente</td>
+                  {% else %}
+                    <td>Entregado</td>
+                  {% endif %}
+                  <td>{{ pedido.fecha_registro.strftime('%Y-%m-%d') }}</td>
+                  <td>{{ pedido.cliente_id }}</td>
+                  <td>{{ pedido.fecha_entrega }}</td>
+                  <td>
+                    <button type="button"   class="btn btn-outline-success btn-circle btn-lg btn-circle mostrar" data-bs-toggle="tooltip" data-bs-html="true" title="Seleccionar" id="{{pedido.id}}"><i class="bi bi-eye"></i></button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <br/>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="mostrar" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Pedido</h5>
+              </div>
+          <div class="modal-body" id="modal-bodyy">
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.6/vfs_fonts.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('#pedidoss').DataTable( {
+          initComplete: function () {
+            this.api()
+            .columns([1,3,4])
+            .every(function () {
+              var column = this;
+              var select = $('<select class="myselect"><option value=""></option></select>')
+              .appendTo( $(column.header()) )
+              .on('change', function () {
+                var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                column.search(val ? '^' + val + '$' : '', true, false).draw();
+              });
+
+              column
+              .data()
+              .unique()
+              .sort()
+              .each(function (d, j) {
+                select.append('<option value="' + d + '">' + d + '</option>');
+              });
+            });
+          },
+        language: {
+        "decimal": "",
+        "emptyTable": "No hay información",
+        "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+        "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+        "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+        "infoPostFix": "",
+        "thousands": ",",
+        "lengthMenu": "Mostrar _MENU_ Entradas",
+        "loadingRecords": "Cargando...",
+        "processing": "Procesando...",
+        "search": "Buscar:",
+        "zeroRecords": "Sin resultados encontrados",
+        "paginate": {
+          "first": "primero",
+          "last": "Ultimo",
+          "next": "Siguiente",
+          "previous": "Anterior" }
+        }
+      });
+      var minDate, maxDate;
+ 
+      // Custom filtering function which will search data in column four between two values
+      $.fn.dataTable.ext.search.push(
+        function( settings, data, dataIndex ) {
+          var min = minDate.val();
+          var max = maxDate.val();
+          var date = data[2];
+
+          if (
+              ( min === null && max === null ) ||
+              ( min === null && date <= max ) ||
+              ( min <= date   && max === null ) ||
+              ( min <= date   && date <= max )
+          ) {
+              return true;
+          }
+          return false;
+        }
+      );
+      // Create date inputs
+      minDate = $('#desde');
+      maxDate = $('#hasta');
+      
+      // DataTables initialisation
+      var table = $('#pedidoss').DataTable();
+  
+      // Refilter the table
+      $('#desde, #hasta').on('change', function () {
+          table.draw();
+      });
+    });
+    $(document).ready(function() {
+      $('.myselect').select2({
+        placeholder: "Filtrar",
+        allowClear: true
+      });
+    });
+    $('.mostrar').on('click', function(){
+      $('#mostrar').modal('show');
+      var pedido = $(this).attr('id');
+      $.ajax({
+        url:"/selectpedido",
+        method:"POST",
+        data:{pedido:pedido},
+       
+        success:function(data){
+          var data_rs = JSON.parse(data);
+          $('#modal-bodyy').html(`
+            <label><strong>Nro. Pedido: </strong></label>${data_rs[0]['id']} <br>
+            <label><strong>Estado: </strong></label>`+(data_rs[0]['estado'] == '1' ? `Pendiente` : `Entregado`)+`<br>
+            <label><strong>Cliente: </strong></label>${data_rs[0]['ci_ruc']}<br>
+            <label><strong>Fecha_entrega: </strong></label>${new Date(data_rs[0]['fecha_entrega']).toLocaleDateString()}<br>
+            <br>
+            <table class="table no-wrap user-table mb-0">
+              <thead>
+                <tr>
+                  <th scope="col" class="border-0 text-uppercase font-medium pl-4">Producto</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Cantidad</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Precio</th>
+                </tr>
+              </thead>
+              <tbody id="detalles">
+                
+              </tbody>
+          `);
+            var pedido = data_rs[0]['id'];
+            $.ajax({
+              url:"/selectdetalle",
+              method:"POST",
+              data:{pedido:pedido},
+              success:function(data){
+                var data_rs2 = JSON.parse(data);
+
+                data_rs2.forEach(linea => {
+                  $('#detalles').append(`
+                    <tr>
+                      <td>${linea['descripcion']}</td>
+                      <td>${linea['cantidad']}</td>
+                      <td>${en_formatter.format(linea['precio'])}G</td>
+                    </tr>
+                `);
+                });
+                
+              }
+            });
+        }
+      });
+    });
+
+    const en_formatter = new Intl.NumberFormat('es-ES', {maximumFractionDigits: 0 });
+  </script>
+  <script>
+    document.getElementById("btnExport").onclick = function () {
+      printElement(document.getElementById("printThis"));
+    }
+    function printElement(elem) {
+      var domClone = elem.cloneNode(true);
+      
+      var $printSection = document.getElementById("printSection");
+      
+      if (!$printSection) {
+        var $printSection = document.createElement("div");
+        $printSection.id = "printSection";
+        document.body.appendChild($printSection);
+      }
+      
+      $printSection.innerHTML = "";
+      $printSection.appendChild(domClone);
+      window.print();
+    }
+  </script>
+</body>
+{% endblock %}

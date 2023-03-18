@@ -1,0 +1,242 @@
+{% extends "base.html" %} 
+{% block title %}Inventario{% endblock %} 
+{% block content %}
+<head>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" /> 
+  <link rel="stylesheet" href="/static/css/users.css" />
+  <link rel="stylesheet" href="https://code.jquery.com/jquery-3.5.1.js" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.2.3/js/dataTables.fixedHeader.min.js" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.2.3/css/fixedHeader.dataTables.min.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css" />
+  <style>
+    @media screen {
+      #printSection {
+          display: none;
+      }
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printSection, #printSection * {
+        visibility: visible;
+        margin: 2px;
+      }
+      #printSection {
+        position: absolute;
+        left:0;
+        top:0;
+      }
+      #modal-footer *{
+        visibility: hidden;
+      }
+      .btn{
+        display: none;
+      }
+      .select2{
+        display:none;
+      }
+      .dataTables_paginate{
+        display:none;
+      }
+      .dataTables_info{
+        display:none;
+      }
+      .dataTables_filter{
+        display:none;
+      }
+      .dataTables_length{
+        display:none;
+      }
+      #accion{
+        display:none;
+      }
+      .card-title{
+        color:black;
+      }
+    }
+  </style>
+
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card" id="printThis">
+            <div class="card-body">
+              <div class="container">
+                <div class="text-center">
+                  <h5 class="card-title text-uppercase">Inventario</h5>
+                </div>
+                <div class="d-flex">
+                  <div class="col-md-10 text-right">
+                    <button class="btn btn-danger" id="btnExport"><i class="bi bi-filetype-pdf"></i></button>
+                  </div>
+                  <div class="text-right">
+                    <a class="btn btn-success" type="button" href="/carga_inventario">Carga Inventario</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="table-responsive">
+                <table id="inventario" class="table no-wrap inventario-table mb-0" style="width:100%">
+                  <thead>
+                    <tr>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Código</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Descripción</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Familia</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Sección</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Estante</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Cantidad</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Cantidad Inventariada</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for productos in list_productos %}
+                    <tr>
+                      <td>{{ productos.codigo }}</td>
+                      <td>{{ productos.descripcion }}</td>
+                      <td>{{ productos.familia }}</td>
+                      <td>{{ productos.seccion }}</td>
+                      <td align="center">{{ productos.estante }}</td>
+                      <td align="center">{{ productos.cantidad|int }}</td>
+                      <td align="center">{{ productos.cantidad_inventario|int }}</td>
+                      <td>
+                        <a type="button" class="btn btn-outline-success btn-circle btn-lg btn-circle ml-2 mov" data-bs-toggle="tooltip" data-bs-html="true" title="Actualizar Stock" href="/actualizar_producto/{{ productos.codigo }}/{{productos.cantidad_inventario }}/"><i class="fa fa-check"></i> </a>
+                        <button type="button" class="btn btn-outline-success btn-circle btn-lg btn-circle ml-2 mov" data-bs-toggle="tooltip" data-bs-html="true" title="Movimiento Detallado" value="{{ productos.codigo }}"><i class="fa fa-eye"></i> </button>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+           <!-- Visualizar Movimientos Detallados Form Modal -->
+        <div id="printThis2">
+           <div class="modal fade" role="dialog" tabindex="-1" id="movimiento_detallado-form-modal">
+            <div class="modal-dialog modal-xl" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="titulo">Movimiento Detallado</h5>
+                  <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">×</span>
+                  </button>
+                </div>
+                <div class="modal-body" id="modal-body">
+    
+                </div>
+                <div class="modal-footer" id ="total">
+                  <button class="btn btn-danger" id="btnPrint"><i class="bi bi-filetype-pdf"></i></button>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                  
+                </div>
+              </div>
+            </div>
+          </div> 
+        </div>  
+    </div>
+  
+    <script>
+      $('.mov').on('click', function() {
+        $('#movimiento_detallado-form-modal').modal('show');
+        var inventario = $(this).attr('value');
+        $.ajax({
+        url:"/select_movimiento_detallado",
+        method:"POST",
+        data:{inventario:inventario},
+        success:function(data){
+          var data_rs = JSON.parse(data);
+          var aux = 0;
+          $('#modal-body').html(`<div class="table-responsive">
+                        <table id="mov" class="table no-wrap inventario-table mb-0">
+                          <thead>
+                            <tr>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Código</th>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Producto</th>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Tipo Movimiento</th>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Descripción</th>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Fecha</th>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Cantidad</th>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Total</th>
+                            </tr>
+                          </thead>
+                          <tbody id="detalles">
+            
+                            </tbody>
+                        ` );
+            data_rs.forEach(i => {
+              $('#detalles').append(`
+              <tr>
+                  <td>${i['codigo']}</td>
+                  <td>${i['producto']}</td>
+                  <td align="center">${i['tipo_movimiento']}</td>
+                  <td>${i['descripcion']}</td>
+                  <td>${i['fecha']}</td>
+                  <td align="center">${i['cantidad']}</td>
+                  <td align="center">${aux = aux + i['cantidad']}</td>
+                </tr> 
+              `);
+            });
+            $('#titulo').html("Movimiento Detallado del producto: " + data_rs[0]['producto']);
+          }
+        });
+    });
+
+    $('#btnExport').on('click', function () {
+    $('.mostrar').attr('class',false);
+    var docDefinition = {
+      content: ["Reporte de movimiento detallado de factura",
+        {
+          layout: 'lightHorizontalLines', // optional
+          table: {
+            // headers are automatically repeated if the table spans over multiple pages
+            // you can declare how many rows should be treated as headers
+            headerRows: 1,
+            widths: [ '*', 'auto', 100, '*' ],
+    
+            body: [
+              [ 'First', 'Second', 'Third', 'The last one' ],
+              [ 'Value 1', 'Value 2', 'Value 3', 'Value 4' ],
+              [ { text: 'Bold value', bold: true }, 'Val 2', 'Val 3', 'Val 4' ],
+              [ { text: 'Bold value', bold: true }, 'Val 2', 'Val 3', 'Val 4' ]
+            ]
+          }
+        }
+      ]
+    };
+    pdfMake.createPdf(docDefinition).download();
+    location.reload();
+  });
+
+  document.getElementById("btnPrint").onclick = function () {
+      printElement(document.getElementById("printThis2"));
+    }
+    function printElement(elem) {
+      var domClone = elem.cloneNode(true);
+      
+      var $printSection = document.getElementById("printSection");
+      
+      if (!$printSection) {
+        var $printSection = document.createElement("div");
+        $printSection.id = "printSection";
+        document.body.appendChild($printSection);
+      }
+      
+      $printSection.innerHTML = "";
+      $printSection.appendChild(domClone);
+      window.print();
+      location.reload();
+    }
+
+    </script>  
+
+  <script src="{{url_for('static', filename='javascript/inventario.js')}}"></script>
+</body>
+
+{% endblock %}

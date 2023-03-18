@@ -1,0 +1,168 @@
+{% extends "base.html" %} 
+{% block title %}Entrada de mercadería{% endblock %} 
+{% block content %}
+<head>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" />
+  <link rel="stylesheet" href="/static/css/users.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="row centrar">
+      <div class="col-md-10">
+        <div class="card">
+          <div class="card-body">
+            <div class="container">
+              <div class="text-center">
+                <h5 class="card-title text-uppercase">Entrada de Mercaderías</h5>
+              </div>
+              <div class="text-right">
+                <a class="btn btn-success" type="button" href="/registrar_entrada">Agregar Entrada</a>
+              </div>
+            </div>
+          </div>
+          <br/>
+          <div class="table-responsive">
+            <table id="entrada" class="table no-wrap entrada-table mb-0">
+              <thead>
+                <tr>
+                  <th scope="col" class="border-0 text-uppercase font-medium pl-4">#</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Nro. Entrada</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Descripción</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Fecha Registro</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for entrada in list_entrada %}
+                  <tr>
+                    <td>{{ entrada.id }}</td>
+                    <td>{{ entrada.nro_entrada }}</td>
+                    <td>{{ entrada.desc_entrada }}</td>
+                    <td>{{ entrada.fecha_entrada.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                      <button type="button" class="btn btn-outline-success btn-circle btn-lg btn-circle ml-2 ver" data-bs-toggle="tooltip" data-bs-html="true" title="Visualizar" value="{{ entrada.id }}"><i class="fa fa-eye"></i> </button>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <br/>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" role="dialog" tabindex="-1" id="view-entrada-form-modal">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="titulo">Entrada</h5>
+            </div>
+            <div class="modal-body" id="modal-body">
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>   
+  </div>
+
+  <script>
+    $('.ver').on('click', function() {
+      var entrada = $(this).attr('value');
+      $('#view-entrada-form-modal').modal('show');
+      $.ajax({
+      url:"/select_detalle_entrada",
+      method:"POST",
+      data:{entrada:entrada},
+      success:function(data){
+        var data_rs = JSON.parse(data);
+        $('#modal-body').html(`<div class="table-responsive">
+                        <table id="ver" class="table no-wrap inventario-table mb-0">
+                          <thead>
+                            <tr>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Producto</th>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Cantidad</th>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Costo</th>
+                            </tr>
+                          </thead>
+                          <tbody id="detalles">
+            
+                            </tbody>
+                        ` ); 
+        // Adding a row inside the tbody.
+        data_rs.forEach(i =>{
+          $('#detalles').append(`
+              <tr>
+                  <td>${i['codigo']}</td>
+                  <td>${i['cantidad']}</td>
+                  <td>${i['precio']}</td>
+                </tr> 
+              `);
+            });
+            $('#titulo').html("Detalle entrada número: " + data_rs[0]['numero']);
+        
+      }
+
+    });
+    });
+
+
+
+
+    $('.mov').on('click', function() {
+        $('#movimiento_detallado-form-modal').modal('show');
+        var inventario = $(this).attr('value');
+        $.ajax({
+        url:"/select_movimiento_detallado",
+        method:"POST",
+        data:{inventario:inventario},
+        success:function(data){
+          var data_rs = JSON.parse(data);
+          var aux = 0;
+          $('#modal-body').html(`<div class="table-responsive">
+                        <table id="ent" class="table no-wrap inventario-table mb-0">
+                          <thead>
+                            <tr>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Código</th>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Producto</th>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Tipo Movimiento</th>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Descripción</th>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Fecha</th>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Cantidad</th>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Total</th>
+                            </tr>
+                          </thead>
+                          <tbody id="detalles">
+            
+                            </tbody>
+                        ` );
+            data_rs.forEach(i => {
+              $('#detalles').append(`
+              <tr>
+                  <td>${i['codigo']}</td>
+                  <td>${i['producto']}</td>
+                  <td align="center">${i['tipo_movimiento']}</td>
+                  <td>${i['descripcion']}</td>
+                  <td>${i['fecha']}</td>
+                  <td align="center">${i['cantidad']}</td>
+                  <td align="center">${aux = aux + i['cantidad']}</td>
+                </tr> 
+              `);
+            });
+            $('#titulo').html("Movimiento Detallado del producto: " + data_rs[0]['producto']);
+          }
+        });
+    });
+
+  </script>
+
+
+  
+  <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js" ></script>
+  <script src="//cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js" ></script>
+  <script src="{{url_for('static', filename='javascript/users.js')}}"></script>
+</body>
+
+{% endblock %}

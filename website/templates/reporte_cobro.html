@@ -1,0 +1,227 @@
+{% extends "base.html" %} 
+{% block title %}Reporte Cobros{% endblock %} 
+{% block content %}
+<head>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/users.css" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+  <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+
+  <style>
+    @media screen {
+      #printSection {
+          display: none;
+      }
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printSection, #printSection * {
+        visibility: visible;
+        margin: 2px;
+      }
+      #printSection {
+        position: absolute;
+        left:0;
+        top:0;
+      }
+      #modal-footer *{
+        visibility: hidden;
+      }
+      .btn{
+        display: none;
+      }
+      .select2{
+        display:none;
+      }
+      .dataTables_paginate{
+        display:none;
+      }
+      .dataTables_info{
+        display:none;
+      }
+      .dataTables_filter{
+        display:none;
+      }
+      .dataTables_length{
+        display:none;
+      }
+      #accion{
+        display:none;
+      }
+      .card-title{
+        color:black;
+      }
+    }
+    .dataTables_paginate{
+        display:none;
+      }
+      .dataTables_info{
+        display:none;
+      }
+      .dataTables_filter{
+        display:none;
+      }
+      .dataTables_length{
+        display:none;
+      }
+  </style>
+
+</head>
+<body>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card" id="printThis">
+        <div class="card-body">
+          <div class="container">
+            <div class="text-center">
+              <h5 class="card-title text-uppercase">Clientes</h5>
+            </div>
+            <div class="row">
+              <div class="text-right">
+                <button class="btn btn-danger" id="btnExport"><i class="bi bi-filetype-pdf"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <br>
+        <div class="table-responsive">
+          <table id="clientes" class="table no-wrap user-table mb-0">
+            <thead>
+              <tr>
+                <th scope="col" class="border-0 text-uppercase font-medium">Cliente</th>
+                <th scope="col" class="border-0 text-uppercase font-medium">Nro Factura</th>
+                <th scope="col" class="border-0 text-uppercase font-medium">Condicion Pago</th>
+                <th scope="col" class="border-0 text-uppercase font-medium">Monto Deuda</th>
+                <th scope="col" class="border-0 text-uppercase font-medium">Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for factura in list_facturas %}
+              <tr>
+                <td>{{ factura.name }}</td>
+                <td>{{ factura.nro_factura }}</td>
+                <td>{{ factura.condicion_pago }}</td>
+                <td>{{ factura.monto_total }}</td>
+                <td>{{ factura.fecha.strftime('%Y-%m-%d') }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <br/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      $('#clientes').DataTable({
+        initComplete: function () {
+          this.api()
+          .columns([0,2,4])
+          .every(function () {
+              var column = this;
+              console.log(this.columns([4]))
+              var select = $('<select class="myselect"><option value=""></option></select>')
+              .appendTo( $(column.header()) )
+              .on('change', function () {
+                var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                column.search(val ? '^' + val + '$' : '', true, false).draw();
+              });   
+              column
+              .data()
+              .unique()
+              .sort()
+              .each(function (d, j) {
+                select.append('<option value="' + d + '">' + d + '</option>');
+              });
+          });
+        },
+        language: {
+        "decimal": "",
+        "emptyTable": "No hay información",
+        "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+        "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+        "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+        "infoPostFix": "",
+        "thousands": ",",
+        "lengthMenu": "Mostrar _MENU_ Entradas",
+        "loadingRecords": "Cargando...",
+        "processing": "Procesando...",
+        "search": "Buscar:",
+        "zeroRecords": "Sin resultados encontrados",
+        "paginate": {
+          "first": "primero",
+          "last": "Ultimo",
+          "next": "Siguiente",
+          "previous": "Anterior" }
+        }
+      });
+    });
+    $(document).ready(function() {
+      $('.myselect').select2({
+        placeholder: "Filtrar",
+        allowClear: true
+      });
+    });
+    
+     type="text/javascript">
+    $(function() {
+      $('input[name="daterange"]').daterangepicker();
+    });
+    
+        $('#btnExport').on('click', function () {
+        $('.mostrar').attr('class',false);
+        var docDefinition = {
+          content: ["Reporte de estado de cuenta:",
+            {
+              layout: 'lightHorizontalLines', // optional
+              table: {
+                // headers are automatically repeated if the table spans over multiple pages
+                // you can declare how many rows should be treated as headers
+                headerRows: 1,
+                widths: [ '*', 'auto', 100, '*' ],
+        
+                body: [
+                  [ 'First', 'Second', 'Third', 'The last one' ],
+                  [ 'Value 1', 'Value 2', 'Value 3', 'Value 4' ],
+                  [ { text: 'Bold value', bold: true }, 'Val 2', 'Val 3', 'Val 4' ],
+                  [ { text: 'Bold value', bold: true }, 'Val 2', 'Val 3', 'Val 4' ]
+                ]
+              }
+            }
+          ]
+        };
+        pdfMake.createPdf(docDefinition).download();
+        location.reload();
+      });
+            
+        document.getElementById("btnExport").onclick = function () {
+            printElement(document.getElementById("printThis"));
+          }
+          function printElement(elem) {
+            var domClone = elem.cloneNode(true);
+            
+            var $printSection = document.getElementById("printSection");
+            
+            if (!$printSection) {
+              var $printSection = document.createElement("div");
+              $printSection.id = "printSection";
+              document.body.appendChild($printSection);
+            }
+            
+            $printSection.innerHTML = "";
+            $printSection.appendChild(domClone);
+            window.print();
+            location.reload();
+          }
+    
+      </script> 
+</body>
+{% endblock %}

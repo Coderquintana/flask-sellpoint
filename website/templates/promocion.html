@@ -1,0 +1,125 @@
+{% extends "base.html" %} 
+{% block title %}Promoción{% endblock %} 
+{% block content %}
+
+<head>
+  <style>
+    .promo{
+      box-shadow: 0 0 20px #000000;
+      margin: auto;
+      padding: 20px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container promo">
+    <h3>Crear Promoción</h3>
+    <br>
+    <form class="form" id="form" action="{{ url_for('views.crearPromocion') }}" method="post" autocomplete="off">
+      <div class="form-group">
+        <div class="row">
+          <div class="col">
+            <label for="">Codigo Promoción</label>
+            <input class="form-control" type="text" name="codigo" required>
+          </div>
+          <div class="col">
+            <label for="">Cantidad</label>
+            <input class="form-control" type="text" name="cantidad" required>
+          </div>
+        </div>
+        <br>
+        <div class="row">
+          <div class="col">
+            <label for="">Ingrese Fecha Inicio</label>
+            <input class="form-control" type="date" name="fecha-inicio" required>
+          </div>
+          <div class="col">
+            <label for="">Ingrese Fecha Fin</label>
+            <input class="form-control" type="date" name="fecha-fin" required>
+          </div>
+        </div>
+        <br>
+        <datalist id="produc">
+          {% for producto in list_productos %}
+          <option value="{{producto.codigo}}" >{{producto.descripcion}}</option>
+          {% endfor %}
+        </datalist>
+        <div class="row">
+          <div class="col">
+            <label for="">Seleccione Producto 1</label>
+            <input class="form-control" type="text" name="prod1" id="prod1" list="produc" required>
+          </div>
+          <div class="col">
+            <label id="l-pr1" for="">Seleccione Precio</label>
+            <input class="form-control formatear" type="text" name="prec1" required>
+          </div>
+          <div class="col">
+            <label for="">Seleccione Cantidad</label>
+            <input class="form-control" type="text" name="cant1" required>
+          </div>
+        </div>
+        <br>
+        <div class="row">
+          <div class="col">
+            <label for="">Seleccione Producto 2</label>
+            <input class="form-control" type="text" name="prod2" id="prod2" list="produc">
+          </div>
+          <div class="col">
+            <label id="l-pr2" for="">Seleccione Precio </label>
+            <input class="form-control formatear" type="text" name="prec2" required>
+          </div>
+          <div class="col">
+            <label for="">Seleccione Cantidad</label>
+            <input class="form-control" type="text" name="cant2" required>
+          </div>
+        </div>
+        <br>
+        <br>
+        <div class="row">
+          <div class="col-md-12 d-flex justify-content-center">
+            <button class="btn btn-primary" type="submit">Confirmar</button>
+            <a class="btn btn-danger" type="cancell" href="/">Cancelar</a>
+          </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <script>
+    new AutoNumeric.multiple('.formatear', {
+      allowDecimalPadding: false,
+      unformatOnSubmit: true,
+      decimalCharacter : '.',
+      digitGroupSeparator : ',',
+    });
+    $('#prod1').on('change', function(){
+      var prod = $('#prod1').val(); 
+      console.log(prod)
+      $.ajax({
+        url:"/selectproducto",
+        method:"POST",
+        data:{prod:prod},
+        success:function(data){
+          var data_rs = JSON.parse(data);
+          $('#l-pr1').html("Precio Actual: " + data_rs[0]['precio1'])
+          console.log(data_rs[0]['precio1'])
+        }
+      });
+    });
+    $('#prod2').on('change', function(){
+      var prod = $('#prod2').val(); 
+      $.ajax({
+        url:"/selectproducto",
+        method:"POST",
+        data:{prod:prod},
+        success:function(data){
+          var data_rs = JSON.parse(data);
+          $('#l-pr2').html("Precio Actual: " + data_rs[0]['precio1'])
+        }
+      });
+    });
+  </script>
+</body>
+
+{% endblock %}

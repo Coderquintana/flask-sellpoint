@@ -1,0 +1,89 @@
+{% extends "base.html" %} 
+{% block title %}Reporte de Compras{% endblock %} 
+{% block content %}
+<head>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" />
+  <link rel="stylesheet" href="/static/css/users.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="container">
+              <div class="text-center">
+                <h5 class="card-title text-uppercase">Reporte de Compras</h5>
+              </div>
+              <div class="text-right">
+                <a class="btn btn-success" type="button" data-toggle="form" href="{{url_for('views.reporteCompras')}}">Imprimir</a>
+              </div>
+            </div>
+          </div>
+          <br/>
+          <div class="table-responsive">
+            <table id="reporte_compras" class="table no-wrap reporte_compras-table mb-0">
+              <thead>
+                <tr>
+                  <th scope="col" class="border-0 text-uppercase font-medium pl-4">#</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Nro Factura</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium" id="ci_ruc">CI RUC</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Proveedor</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Fecha Vencimiento</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Total</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Condicion Pago</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Estado</th>
+                  <th scope="col" class="border-0 text-uppercase font-medium">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for rc in list_factura_compra %}
+                  <tr>
+                    <td>{{ rc.id_compra }}</td>
+                    <td>{{ rc.nro_factura_compra }}</td>
+                    <td>{{ rc.ci_ruc }}</td>
+                    <td>{{ rc.name }}</td>
+                    <td>{{ rc.fecha }}</td>
+                    <td class="formato">{{ rc.monto_total }}</td>
+                    <td>{{ rc.condicion_pago }}</td>
+                    <td>{{ rc.estado }}</td>
+                    <td>
+                      <a type="button" class="btn btn-outline-success btn-circle btn-lg btn-circle ml-2" data-bs-toggle="tooltip" data-bs-html="true" title="Eliminar" href="/eliminar_factura_compra/{{ rc.id_compra }}"><i class="fa fa-trash"></i> </a>
+                      <a type="button" class="btn btn-outline-success btn-circle btn-lg btn-circle ml-2"  data-bs-toggle="tooltip" data-bs-html="true" title="Registrar Pago" href="{{url_for('views.pagos')}}"><i class="fa fa-dollar"></i> </a>
+                      <button type="button" class="btn btn-outline-success btn-circle btn-lg btn-circle mostrar" data-bs-toggle="tooltip" data-bs-html="true" title="Seleccionar" id="{{ rc.nro_factura_compra }}"><i class="bi bi-eye"></i></button>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <br/>
+          </div>
+        </div>
+      </div>
+
+       <!-- Modal -->
+    <div class="modal fade" id="mostrar" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Factura</h5>
+              </div>
+          <div class="modal-body" id="modal-bodyy">
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js" ></script>
+  <script src="//cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js" ></script>
+  <script src="{{url_for('static', filename='javascript/facturarcompra.js')}}"></script>
+  <script src="{{url_for('static', filename='javascript/reporte_compras.js')}}"></script>
+</body>
+
+{% endblock %}

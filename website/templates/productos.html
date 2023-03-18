@@ -1,0 +1,603 @@
+{% extends "base.html" %} 
+{% block title %}Definición de Productos{% endblock %} 
+{% block content %}
+<head>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" />
+  <link rel="stylesheet" href="/static/css/users.css" />
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                      <div class="container">
+                        <div class="text-center">
+                          <h5 class="card-title text-uppercase">Definición de Productos</h5>
+                        </div>
+                        <div class="text-right">
+                          <button class="btn btn-success" type="button" data-toggle="modal" data-target="#producto-form-modal">Crear Producto</button>
+                        </div>
+                      </div>
+                    </div>
+                    <br/>
+                    <div class="table-responsive">
+                        <table id="productos" class="table no-wrap productos-table mb-0">
+                          <thead>
+                            <tr>
+                              <th scope="col" class="border-0 text-uppercase font-medium pl-4">#</th>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Código</th>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Descripción</th>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Familia</th>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Sección</th>
+                              <th scope="col" class="border-0 text-uppercase font-medium">Acción</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for productos in list_productos %}
+                            <tr>
+                              <td>{{ productos.id }}</td>
+                              <td>{{ productos.codigo }}</td>
+                              <td>{{ productos.descripcion }}</td>
+                              <td>{{ productos.familia }}</td>
+                              <td>{{ productos.seccion }}</td>
+                              <td>
+                                <a type="button" id="btnVisualizar" class="btn btn-outline-success btn-circle btn-lg btn-circle ml-2" data-bs-toggle="tooltip" data-bs-html="true" title="Visualizar" data-toggle="modal" data-target="#view-producto-form-modal{{ productos.id }}"><i class="fa fa-eye"></i> </a>
+                                <button type="button" class="btn btn-outline-success btn-circle btn-lg btn-circle ml-2"  data-bs-toggle="tooltip" data-bs-html="true" title="Modificar" data-toggle="modal" data-target="#edit-producto-form-modal{{productos.id}}"><i class="fa fa-edit"></i> </button>
+                                <a type="button" onClick="showAlert();" class="btn btn-outline-success btn-circle btn-lg btn-circle ml-2" data-bs-toggle="tooltip" data-bs-html="true" title="Eliminar" href="/eliminar_producto/{{ productos.id }}"><i class="fa fa-trash"></i> </a>
+                              </td>
+                            </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                        <br/>
+                    </div>
+                </div>
+            </div>
+            <!-- Agregar Productos Form Modal -->
+    <div class="modal fade" role="dialog" tabindex="-1" id="producto-form-modal">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Creación de Producto</h5>
+              <button type="button" class="close" data-dismiss="modal">
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="py-1">
+                <form class="form" novalidate="" action="{{ url_for('views.agregarProducto') }}" method="post" autocomplete="off">
+                  <div class="row">
+                    <div class="col">
+                      <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                <label>Código del Producto</label>
+                                <input class="form-control" type="text" name="codigo" value="" placeholder="00001">
+                                </div>
+                            </div>
+                            <div class="col">
+                              <div class="form-group">
+                              <label>Código de barra</label>
+                              <input class="form-control" type="text" name="codigo_barra" value="" placeholder="0000000000001">
+                              </div>
+                          </div>
+                      </div>
+                      <div class="row">
+                            <div class="col-md-7">
+                                <div class="form-group">
+                                    <label>Descripción</label>
+                                    <input class="form-control" type="text" name="descripcion" value="" placeholder="Producto Ejemplo" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                              <div class="form-group">
+                                <label>Sección</label>
+                                <select class="form-control category-select" id="seccion" name="seccion">
+                                  {% for seccion in list_seccion %}
+                                  <option value="{{seccion.id}}" >{{seccion.desc_seccion}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                            <div class="col-md-2">
+                              <div class="form-group">
+                                <label>Estante</label>
+                                <select class="form-control category-select" id="estante" name="estante">
+                                  {% for estante in list_estante %}
+                                  <option value="{{estante.id}}" >{{estante.desc_estante}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                      </div>
+                      <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                              <label>Unidad de Medida Venta</label>
+                              <select class="form-control category-select" id="unidad_medida_venta" name="unidad_medida_venta">
+                                {% for uni_med in list_unidad_medida %}
+                                <option value="{{uni_med.id}}" >{{uni_med.desc_unidad_medida}}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                          </div>
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Unidad de Medida Compra</label>
+                              <select class="form-control category-select" id="unidad_medida_compra" name="unidad_medida_compra">
+                                {% for uni_med in list_unidad_medida %}
+                                <option value="{{uni_med.id}}" >{{uni_med.desc_unidad_medida}}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                          </div>
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Familia</label>
+                              <select class="form-control category-select" id="familia" name="familia">
+                                {% for familia in list_familia %}
+                                <option value="{{familia.id}}" >{{familia.desc_familia}}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                          </div>
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Tipo de Impuesto</label>
+                              <select class="form-control category-select" id="tipo_impuesto" name="tipo_impuesto">
+                                {% for tipo_imp in list_tipo_impuesto %}
+                                <option value="{{tipo_imp.id}}" >{{tipo_imp.desc_tipo_impuesto}}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                          </div>
+                      </div>                     
+                      <div class="row">
+                        <div class="col">
+                          <div class="form-group">
+                            <label>Precios de Venta</label>
+                            <div class="row">
+                              <div class="col">
+                                <div class="form-group">
+                                  <input class="form-control formato" type="text" name="precio1" value=0 placeholder="0">
+                                </div>
+                              </div>
+                              <div class="col">
+                                <div class="form-group">
+                                  <input class="form-control formato" type="text" name="precio2" value=0 placeholder="0">
+                                </div>
+                              </div>
+                              <div class="col">
+                                <div class="form-group">
+                                  <input class="form-control formato" type="text" name="precio3" value=0 placeholder="0">
+                                </div>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col">
+                                <div class="form-group">
+                                  <input class="form-control formato" type="text" name="precio4" value=0 placeholder="0">
+                                </div>
+                              </div>
+                              <div class="col">
+                                <div class="form-floating">
+                                  <input class="form-control formato" type="text" name="precio_promo" value=0 placeholder="0">
+                                  <label for="floatingInput">Precio Promocion</label>
+                                </div>
+                              </div>
+                              <div class="col">
+                                <div class="form-floating">
+                                  <input class="form-control formato" type="text" name="precio_mayor" value=0 placeholder="0">
+                                  <label for="floatingInput">Precio Mayorista</label>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="row">
+                        <div class="col">
+                          <div class="form-group">
+                            <label>Stock Mínimo</label>
+                            <input class="form-control" type="number" name="stock_minimo" value=0 placeholder="0">
+                          </div>
+                        </div>
+                        <div class="col">
+                          <div class="form-group">
+                            <label>Stock Máximo</label>
+                            <input class="form-control" type="number" name="stock_maximo" value=0 placeholder="0">
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+                  <br />
+                  <div class="row">
+                    <div class="col d-flex justify-content-end">
+                      <button class="btn btn-primary" type="submit">Guardar</button>
+                      <button type="button" class="btn btn-danger cancel" data-dismiss="modal">Cerrar</button>  
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Modificar Productos Form Modal -->
+    {% for pr in list_productos %}
+    <div class="modal fade" role="dialog" tabindex="-1" id="edit-producto-form-modal{{pr.id}}">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Modificar Producto {{ pr.descripcion }}</h5>
+            <button type="button" class="close" data-dismiss="modal">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="py-1">
+              <form class="form" id="modificarProducto" novalidate="" action="{{ url_for('views.editarProducto') }}" method="post" autocomplete="off">
+                <div class="row">
+                  <div class="col">
+                    <div class="row">
+                      <div class="col" hidden>
+                        <div class="form-group">
+                          <input class="form-control" type="text" name="id" value="{{ pr.id }}" readonly>
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Código del Producto</label>
+                            <input class="form-control" type="text" name="codigo" value="{{ pr.codigo }}" placeholder="00001">
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Código de barra</label>
+                            <input class="form-control" type="text" name="codigo_barra" value="" placeholder="0000000000001">
+                        </div>
+                      </div>
+                    </div>
+                      <div class="row">
+                        <div class="col-md-7">
+                          <div class="form-group">
+                              <label>Descripción</label>
+                              <input class="form-control" type="text" name="descripcion" value=" {{ pr.descripcion }}" placeholder="Producto Ejemplo" required>
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-group">
+                            <label>Sección</label>
+                            <select class="form-control category-select" id="seccion" name="seccion">
+                              {% for seccion in list_seccion %}
+                              <option value="{{seccion.id}}" {% if pr.seccion == seccion.desc_seccion %} selected {% endif %}>{{seccion.desc_seccion}}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                        </div>
+                        <div class="col-md-2">
+                          <div class="form-group">
+                            <label>Estante</label>
+                            <select class="form-control category-select" id="estante" name="estante">
+                              {% for estante in list_estante %}
+                              <option value="{{estante.id}}" {% if pr.estante == estante.id %} selected {% endif %}>{{estante.desc_estante}}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    <div class="row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Unidad de Medida Venta</label>
+                          <select class="form-control category-select" id="unidad_medida_venta" name="unidad_medida_venta">
+                            {% for uni_med in list_unidad_medida %}
+                            <option value="{{uni_med.id}}" {% if pr.unidad_medida_venta == uni_med.desc_unidad_medida %} selected {% endif %}>{{uni_med.desc_unidad_medida}}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Unidad de Medida Compra</label>
+                          <select class="form-control category-select" id="unidad_medida_compra" name="unidad_medida_compra">
+                            {% for uni_med in list_unidad_medida %}
+                            <option value="{{uni_med.id}}" {% if pr.unidad_medida_compra == uni_med.desc_unidad_medida %} selected {% endif %}>{{uni_med.desc_unidad_medida}}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Familia</label>
+                          <select class="form-control category-select" id="familia" name="familia">
+                            {% for familia in list_familia %}
+                            <option value="{{familia.id}}" {% if pr.familia == familia.desc_familia %} selected {% endif %}>{{familia.desc_familia}}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Tipo de Impuesto</label>
+                          <select class="form-control category-select" id="tipo_impuesto" name="tipo_impuesto">
+                            {% for tipo_imp in list_tipo_impuesto %}
+                            <option value="{{tipo_imp.id}}" >{{tipo_imp.desc_tipo_impuesto}}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Precios de Venta</label>
+                          <div class="row">
+                            <div class="col">
+                              <div class="form-group">
+                                <input class="form-control formato" type="text" name="precio1" value="{{ pr.precio1 }}">
+                              </div>
+                            </div>
+                            <div class="col">
+                              <div class="form-group">
+                                <input class="form-control formato" type="text" name="precio2" value="{{ pr.precio2 }}">
+                              </div>
+                            </div>
+                            <div class="col">
+                              <div class="form-group">
+                                <input class="form-control formato" type="text" name="precio3" value="{{ pr.precio3 }}">
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col">
+                              <div class="form-group">
+                                <input class="form-control formato" type="text" name="precio4" value="{{ pr.precio4 }}">
+                              </div>
+                            </div>
+                            <div class="col">
+                              <div class="form-floating">
+                                <input class="form-control formato" type="text" name="precio_promo" value="{{ pr.precio_promo }}">
+                                <label for="floatingInput">Precio Promocion</label>
+                              </div>
+                            </div>
+                            <div class="col">
+                              <div class="form-floating">
+                                <input class="form-control formato" type="text" name="precio_mayor" value="{{ pr.precio_mayor }}">
+                                <label for="floatingInput">Precio Mayorista</label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>                    
+                    <div class="row">
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Stock Mínimo</label>
+                          <input class="form-control" type="number" name="stock_minimo" value="{{ pr.stock_minimo }}">
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                          <label>Stock Máximo</label>
+                          <input class="form-control" type="number" name="stock_maximo" value="{{ pr.stock_maximo }}">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <br/>
+                <div class="row">
+                  <div class="col d-flex justify-content-end">
+                    <button class="btn btn-primary" type="submit">Guardar Cambios</button>
+                    <button type="button" class="btn btn-danger cancel" data-dismiss="modal">Cerrar</button>  
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+        <!-- Visualizar Productos Form Modal -->
+    {% for pr in list_productos %}
+      <div class="modal fade" role="dialog" tabindex="-1" id="view-producto-form-modal{{pr.id}}">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Visualiza Producto {{ pr.descripcion }}</h5>
+              <button type="button" class="close" data-dismiss="modal">
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="py-1">
+                <form class="form" id="modificarProducto" novalidate="" action="{{ url_for('views.editarProducto') }}" method="post" autocomplete="off">
+                  <fieldset disabled="disabled">
+                    <div class="row">
+                      <div class="col">
+                        <div class="row">
+                          <div class="col" hidden>
+                            <div class="form-group">
+                              <input class="form-control" type="text" name="id" value="{{ pr.id }}" readonly>
+                            </div>
+                          </div>
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Código del Producto</label>
+                                <input class="form-control" type="text" name="codigo" value="{{ pr.codigo }}" placeholder="00001">
+                            </div>
+                          </div>
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Código de barra</label>
+                                <input class="form-control" type="text" name="codigo_barra" value="" placeholder="0000000000001">
+                            </div>
+                          </div>
+                        </div>
+                          <div class="row">
+                            <div class="col-md-7">
+                              <div class="form-group">
+                                  <label>Descripción</label>
+                                  <input class="form-control" type="text" name="descripcion" value=" {{ pr.descripcion }}" placeholder="Producto Ejemplo" required>
+                              </div>
+                            </div>
+                            <div class="col-md-3">
+                              <div class="form-group">
+                                <label>Sección</label>
+                                <select class="form-control category-select" id="seccion" name="seccion">
+                                  {% for seccion in list_seccion %}
+                                  <option value="{{seccion.id}}" {% if pr.seccion == seccion.desc_seccion %} selected {% endif %}>{{seccion.desc_seccion}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                            <div class="col-md-2">
+                              <div class="form-group">
+                                <label>Estante</label>
+                                <select class="form-control category-select" id="estante" name="estante">
+                                  {% for estante in list_estante %}
+                                  <option value="{{estante.id}}" {% if pr.estante == estante.id %} selected {% endif %}>{{estante.desc_estante}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        <div class="row">
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Unidad de Medida Venta</label>
+                              <select class="form-control category-select" id="unidad_medida_venta" name="unidad_medida_venta">
+                                {% for uni_med in list_unidad_medida %}
+                                <option value="{{uni_med.id}}" {% if pr.unidad_medida_venta == uni_med.desc_unidad_medida %} selected {% endif %}>{{uni_med.desc_unidad_medida}}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                          </div>
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Unidad de Medida Compra</label>
+                              <select class="form-control category-select" id="unidad_medida_compra" name="unidad_medida_compra">
+                                {% for uni_med in list_unidad_medida %}
+                                <option value="{{uni_med.id}}" {% if pr.unidad_medida_compra == uni_med.desc_unidad_medida %} selected {% endif %}>{{uni_med.desc_unidad_medida}}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                          </div>
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Familia</label>
+                              <select class="form-control category-select" id="familia" name="familia">
+                                {% for familia in list_familia %}
+                                <option value="{{familia.id}}" {% if pr.familia == familia.desc_familia %} selected {% endif %}>{{familia.desc_familia}}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                          </div>
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Tipo de Impuesto</label>
+                              <select class="form-control category-select" id="tipo_impuesto" name="tipo_impuesto">
+                                {% for tipo_imp in list_tipo_impuesto %}
+                                <option value="{{tipo_imp.id}}" >{{tipo_imp.desc_tipo_impuesto}}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Precios de Venta</label>
+                              <div class="row">
+                                <div class="col">
+                                  <div class="form-group">
+                                    <input class="form-control formato" type="text" name="precio1" value="{{ pr.precio1 }}">
+                                  </div>
+                                </div>
+                                <div class="col">
+                                  <div class="form-group">
+                                    <input class="form-control formato" type="text" name="precio2" value="{{ pr.precio2 }}">
+                                  </div>
+                                </div>
+                                <div class="col">
+                                  <div class="form-group">
+                                    <input class="form-control formato" type="text" name="precio3" value="{{ pr.precio3 }}">
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col">
+                                  <div class="form-group">
+                                    <input class="form-control formato" type="text" name="precio4" value="{{ pr.precio4 }}">
+                                  </div>
+                                </div>
+                                <div class="col">
+                                  <div class="form-group">
+                                    <input class="form-control formato" type="text" name="precio_promo" value="{{ pr.precio_promo }}">
+                                  </div>
+                                </div>
+                                <div class="col">
+                                  <div class="form-group">
+                                    <input class="form-control formato" type="text" name="precio_mayor" value="{{ pr.precio_mayor }}">
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>                    
+                        <div class="row">
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Stock Mínimo</label>
+                              <input class="form-control" type="number" name="stock_minimo" value="{{ pr.stock_minimo }}">
+                            </div>
+                          </div>
+                          <div class="col">
+                            <div class="form-group">
+                              <label>Stock Máximo</label>
+                              <input class="form-control" type="number" name="stock_maximo" value="{{ pr.stock_maximo }}">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <br/>
+                </fieldset>
+                <div class="row">
+                  <div class="col d-flex justify-content-end">
+                    <button class="btn btn-primary" type="submit">Cerrar</button>
+                  </div>
+                </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <script>
+      new AutoNumeric.multiple('.formato', {
+        allowDecimalPadding: false,
+        unformatOnSubmit: true,
+        decimalCharacter : '.',
+        digitGroupSeparator : ',',
+      });
+
+  </script>
+  
+  <script src="//code.jquery.com/jquery-3.5.1.js" ></script>
+  <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js" ></script>
+  <script src="//cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js" ></script>
+  <script src="{{url_for('static', filename='javascript/users.js')}}"></script>
+</body>
+
+{% endblock %}

@@ -1,0 +1,101 @@
+/* Colores de Logo: #19534f Verde oscuro -- #03a79d Celeste */
+
+* {
+    margin:0;
+    padding:0;
+}
+
+.section{
+    width: auto;
+    height: auto;
+    border-color: #19534f;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 10px;
+    background:#19534f,transparent;
+    background-image: image();
+    margin: auto;
+    box-shadow: 0 0 20px #000000;
+}
+
+.box{
+    border: 1px solid transparent;
+    border-color: #00000065;
+    width: 100%;
+    padding: 10px;
+    box-shadow: 2px 2px;
+}
+
+.id-fact{
+    color:#000000;
+    font-weight: bold;
+    text-align: center;   
+    border-left: 1px solid;
+}
+ 
+
+.table{
+    width: 98%;
+    margin: auto;
+    box-shadow: inset 0 0 5px black;
+}
+
+.btn{
+    color:black;
+}
+
+tbody{
+    background-color: rgb(77, 168, 156);
+    box-shadow: inset 0 0 5px black;
+}
+
+.micontainer{
+    border: 1px solid;
+    padding-left: 20px;
+    padding-top:5px;
+}
+
+.d-flex{
+    gap: 30px;
+    margin: 10px;
+    border-width: 2px;
+}
+
+.modal-header{
+    background-color: #19534f;
+    color: white;
+}
+
+.invoice-logo{
+    color: rgb(19, 19, 77);
+    font-weight: bold;
+    text-decoration: underline;
+    font-size: 35px;
+    margin:10px;
+}
+
+address{
+    color: #19534f;
+}
+
+.ayuda{
+    background-color: #19534f;
+}
+
+#preview {
+    width: 180px;
+    height: 90px;
+    margin-left: 10px;
+}
+
+.prueba{
+    margin-left: 10px;
+}
+
+/* .table-fixed {
+    height:200px;
+    overflow-y: scroll;
+    display: block;
+    min-width: fit-content;
+    min-height: fit-content;
+}  */

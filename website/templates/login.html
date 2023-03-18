@@ -1,0 +1,37 @@
+{% extends "base.html" %} 
+{% block title %}Login{% endblock %} 
+{% block content %}
+<head>
+  <link href="/static/css/login.css" rel="stylesheet">
+</head>
+<body>
+  <div class="box">
+    <div class="form">
+      <form class="content" method="POST" autocomplete="off">
+        <img class="mx-auto d-block" src="static\images\logo1.png" alt="" width="52" height="39">
+        <h3 class="text-dark">Iniciar Sesion</h3>
+        <br/>
+        <div class="form-floating">
+          <input type="email" class="form-control" id="email" name="email" placeholder="Ingresar Email" required/>
+          <label for="floatingInput">Email</label>
+        </div>
+        <br />
+        <div class="form-floating">
+          <input type="password" class="form-control" id="password" name="password" placeholder="Ingresar contraseña" required/>
+          <label for="floatingPassword">Contraseña</label>
+        </div>
+        <br />
+        <div class="login-datos">
+          <label class="text-dark">Version 1.1 </label>
+          <br />
+          <label class="text-dark">Asunción - 2022</label>
+          <br />
+        </div>
+        <div class="submit-button">
+          <button class="btn btn-outline-primary" type="submit" >Ingresar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+{% endblock %}

@@ -1,0 +1,234 @@
+{% extends "base.html" %} 
+{% block title %}Reporte Valorizado{% endblock %} 
+{% block content %}
+<head>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" /> 
+  <link rel="stylesheet" href="/static/css/users.css" />
+  <link rel="stylesheet" href="https://code.jquery.com/jquery-3.5.1.js" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.2.3/js/dataTables.fixedHeader.min.js" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.2.3/css/fixedHeader.dataTables.min.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css" />
+  <link rel="stylesheet" href="/static/css/familia.css" />
+  <style>
+    @media screen {
+      #printSection {
+          display: none;
+      }
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printSection, #printSection * {
+        visibility: visible;
+        margin: 2px;
+      }
+      #printSection {
+        position: absolute;
+        left:0;
+        top:0;
+      }
+      #modal-footer *{
+        visibility: hidden;
+      }
+      .btn{
+        display: none;
+      }
+      .select2{
+        display:none;
+      }
+      .dataTables_paginate{
+        display:none;
+      }
+      .dataTables_info{
+        display:none;
+      }
+      .dataTables_filter{
+        display:none;
+      }
+      .dataTables_length{
+        display:none;
+      }
+      #accion{
+        display:none;
+      }
+      .card-title{
+        color:black;
+      }
+    }
+    .dataTables_paginate{
+        display:none;
+      }
+      .dataTables_info{
+        display:none;
+      }
+      .dataTables_filter{
+        display:none;
+      }
+      .dataTables_length{
+        display:none;
+      }
+  </style>
+
+</head>
+<body>
+  <div class="container">
+    <div class="row centrar">
+      <div class="col-md-10">
+        <div class="card" id="printThis">
+            <div class="card-body">
+              <div class="container">
+                <div class="text-center">
+                  <h5 class="card-title text-uppercase">Reporte Valorizado</h5>
+                </div>
+                <div class="row">
+                  <div class="text-right">
+                    <button class="btn btn-danger" id="btnExport"><i class="bi bi-filetype-pdf"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="table-responsive">
+                <table id="listado" class="table no-wrap listado-table mb-0" style="width:100%">
+                  <thead>
+                    <tr>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Código</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Descripción</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Unidad de Medida</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Cantidad</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Costo Unitario</th>
+                      <th scope="col" class="border-0 text-uppercase font-medium">Costo Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for productos in list_productos %}
+                    <tr>
+                      <td>{{ productos.codigo }}</td>
+                      <td>{{ productos.descripcion }}</td>
+                      <td>{{ productos.unidad_medida_venta }}</td>
+                      <td>{{ productos.cantidad }}</td>
+                      <td>{{ productos.costo }}</td>
+                      <td>{{ productos.costo*productos.cantidad }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+  <script>
+$(document).ready(function () {
+  $('#listado').DataTable({
+    initComplete: function () {
+      this.api()
+      .columns([0])
+      .every(function () {
+          var column = this;
+          console.log(this.columns([4]))
+          var select = $('<select class="myselect"><option value=""></option></select>')
+          .appendTo( $(column.header()) )
+          .on('change', function () {
+            var val = $.fn.dataTable.util.escapeRegex($(this).val());
+            column.search(val ? '^' + val + '$' : '', true, false).draw();
+          });
+
+          column
+          .data()
+          .unique()
+          .sort()
+          .each(function (d, j) {
+            select.append('<option value="' + d + '">' + d + '</option>');
+          });
+      });
+    },
+    language: {
+    "decimal": "",
+    "emptyTable": "No hay información",
+    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+    "infoPostFix": "",
+    "thousands": ",",
+    "lengthMenu": "Mostrar _MENU_ Entradas",
+    "loadingRecords": "Cargando...",
+    "processing": "Procesando...",
+    "search": "Buscar:",
+    "zeroRecords": "Sin resultados encontrados",
+    "paginate": {
+      "first": "primero",
+      "last": "Ultimo",
+      "next": "Siguiente",
+      "previous": "Anterior" }
+    }
+  });
+});
+$(document).ready(function() {
+  $('.myselect').select2({
+    placeholder: "Filtrar",
+    allowClear: true
+  });
+});
+
+ type="text/javascript">
+$(function() {
+  $('input[name="daterange"]').daterangepicker();
+});
+
+    $('#btnExport').on('click', function () {
+    $('.mostrar').attr('class',false);
+    var docDefinition = {
+      content: ["Reporte de movimiento detallado de factura",
+        {
+          layout: 'lightHorizontalLines', // optional
+          table: {
+            // headers are automatically repeated if the table spans over multiple pages
+            // you can declare how many rows should be treated as headers
+            headerRows: 1,
+            widths: [ '*', 'auto', 100, '*' ],
+    
+            body: [
+              [ 'First', 'Second', 'Third', 'The last one' ],
+              [ 'Value 1', 'Value 2', 'Value 3', 'Value 4' ],
+              [ { text: 'Bold value', bold: true }, 'Val 2', 'Val 3', 'Val 4' ],
+              [ { text: 'Bold value', bold: true }, 'Val 2', 'Val 3', 'Val 4' ]
+            ]
+          }
+        }
+      ]
+    };
+    pdfMake.createPdf(docDefinition).download();
+    location.reload();
+  });
+
+      
+    document.getElementById("btnPrint").onclick = function () {
+        printElement(document.getElementById("printThis"));
+      }
+      function printElement(elem) {
+        var domClone = elem.cloneNode(true);
+        
+        var $printSection = document.getElementById("printSection");
+        
+        if (!$printSection) {
+          var $printSection = document.createElement("div");
+          $printSection.id = "printSection";
+          document.body.appendChild($printSection);
+        }
+        
+        $printSection.innerHTML = "";
+        $printSection.appendChild(domClone);
+        window.print();
+        location.reload();
+      }
+
+  </script>  
+
+  <script src="{{url_for('static', filename='javascript/inventario.js')}}"></script>
+</body>
+
+{% endblock %}

@@ -7,7 +7,7 @@ This is a Flask-based MVC (Model-View-Controller) project for a Point of Sale sy
 ## Installation
 Clone the repository to your local machine:
 ```bash
-  $ git clone https://github.com/JQuintanaDev/flask-sellpoint.git
+  $ git clone https://github.com/Coderquintana/flask-sellpoint.git
 ```
 To get started with this project, you'll need to install the following packages:
 

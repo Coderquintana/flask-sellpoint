@@ -5,9 +5,10 @@ This is a Flask-based MVC (Model-View-Controller) project for a Point of Sale sy
 
 
 ## Installation
-
-To get started with this project, you'll need to install the following packages:
-
+Clone the repository to your local machine:
+```bash
+  $ git clone https://github.com/JQuintanaDev/flask-sellpoint.git
+```
 To get started with this project, you'll need to install the following packages:
 
 - Flask==2.0.3
@@ -59,7 +60,7 @@ The application is designed to keep track of customer accounts, including balanc
 ## Authors
 This project was created by:
 
-- [@franja1994](https://github.com/franja1994)
+- [@franja1994](https://github.com/JQuintanaDev)
 
 If you have any questions or comments about this project, please feel free to contact me at [franja1994@gmail.com].
 
